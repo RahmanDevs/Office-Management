@@ -1,0 +1,43 @@
+
+<!-- templates/pdf_to_image.html -->
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label>Select PDF:</label>
+    <input type="file" name="pdf" accept="application/pdf">
+    <button type="submit">Convert</button>
+</form>
+
+<div id="progress-container" style="display:none;">
+    <h3>Conversion Progress:</h3>
+    <progress id="progress-bar" value="0" max="100"></progress>
+    <p id="progress-text">Waiting...</p>
+</div>
+
+{% if images %}
+    <h3>Converted Images:</h3>
+    <ul>
+        {% for image_url in images %}
+            <li>
+                <img src="{{ image_url }}" alt="Converted Image" width="200"><br>
+                <a href="{{ image_url }}" download>Download</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <hr>
+    <a href="{{ zip_url }}" download>Download All as ZIP</a>
+{% endif %}
+
+<script>
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const progressContainer = document.getElementById('progress-container');
+
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/progress/');
+
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        progressBar.value = data.progress;
+        progressText.textContent = data.message;
+        progressContainer.style.display = 'block';
+    };
+</script>

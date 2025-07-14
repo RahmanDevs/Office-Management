@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Faculty Members List - Modern Copy Mode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset & basics */
+    html, body {
+      margin: 0; padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: #f4f7fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .container {
+      flex: 1;
+      max-width: 1200px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    /* Modern toggle container */
+    .copy-mode-toggle {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 25px;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: #444;
+      user-select: none;
+    }
+
+    /* Segmented control styling */
+    .segmented-control {
+      display: inline-flex;
+      background: #e0e0e0;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: inset 0 0 5px #ccc;
+      user-select: none;
+    }
+
+    .segmented-control button {
+      all: unset;
+      cursor: pointer;
+      padding: 8px 16px;
+      font-weight: 600;
+      color: #555;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      text-align: center;
+      flex: 1 1 auto;
+      border-radius: 0;
+    }
+
+    .segmented-control button.selected {
+      background: #3498db;
+      color: white;
+      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .segmented-control button:not(.selected):hover {
+      background: #c5d9f7;
+    }
+
+    /* Faculty grid */
+    .faculty-grid {
+      display: grid;
+      /* grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); */
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+    }
+
+    .faculty-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease;
+      cursor: default;
+      position: relative;
+    }
+
+    .faculty-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .faculty-photo {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      border: 2px solid #ddd;
+    }
+
+    .faculty-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #2c3e50;
+      margin: 5px 0;
+      user-select: none;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .faculty-title {
+      font-size: 14px;
+      color: #777;
+      user-select: none;
+    }
+
+    /* Tooltip style */
+    .tooltip {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #3498db;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+      user-select: none;
+      z-index: 10;
+    }
+
+    .tooltip.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    footer {
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header>
+      <h1>Faculty Members – Dept. of Al-Qur'an & Islamic Studies</h1>
+    </header>
+
+    <div class="container">
+      <div class="copy-mode-toggle" aria-label="Copy Mode Selector">
+        <span>Copy Mode:</span>
+        <div class="segmented-control" role="tablist" aria-label="Copy Mode">
+          <button role="tab" aria-selected="true" id="mode-bn" class="selected" tabindex="0">Bangla</button>
+          <button role="tab" aria-selected="false" id="mode-en" tabindex="-1">English</button>
+          <button role="tab" aria-selected="false" id="mode-ansi" tabindex="-1">Bangla ANSI</button>
+        </div>
+      </div>
+
+      <div class="faculty-grid">
+
+        {% for faculty in faculties %}
+        <!-- Faculty 1 -->
+        <div class="faculty-card">
+          {% if faculty.profile_picture %}
+          <img src="{{ faculty.profile_picture.url }}" alt="Faculty Photo" class="faculty-photo" />
+          {% endif %}
+          
+          <div
+            class="faculty-name"
+            data-bn-name="{{ faculty.full_name_uni }}"
+            data-ansi-name="{{ faculty.full_name_ansi }}"
+            ondblclick="copyName(this)"
+            tabindex="0"
+            role="button"
+            aria-label="Double click to copy name"
+          >
+            {{ faculty.full_name_en }}
+            <span class="tooltip" aria-live="polite">Copied!</span>
+          </div>
+          <div class="faculty-title">{{ faculty.designation }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <footer>
+      &copy; 2025 Department of Al-Qur'an & Islamic Studies | All rights reserved.
+    </footer>
+  </div>
+
+  <script>
+    // Copy modes
+    const COPY_MODES = {
+      BANGLA: 'bangla',
+      ENGLISH: 'english',
+      ANSI: 'ansi',
+    };
+
+    let currentMode = COPY_MODES.BANGLA;
+
+    const buttons = document.querySelectorAll('.segmented-control button');
+
+    buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Clear all selection
+      buttons.forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-selected', 'false');
+        b.setAttribute('tabindex', '-1');
+      });
+
+      // Mark current as selected
+      btn.classList.add('selected');
+      btn.setAttribute('aria-selected', 'true');
+      btn.setAttribute('tabindex', '0');
+
+      // Update currentMode based on ID
+      if (btn.id === 'mode-bn') currentMode = COPY_MODES.BANGLA;
+      else if (btn.id === 'mode-en') currentMode = COPY_MODES.ENGLISH;
+      else if (btn.id === 'mode-ansi') currentMode = COPY_MODES.ANSI;
+
+      // ✅ Save mode in localStorage
+      localStorage.setItem('copyMode', currentMode);
+    });
+  });
+
+    function copyName(element) {
+      let textToCopy;
+      if (currentMode === COPY_MODES.BANGLA) {
+        textToCopy = element.getAttribute('data-bn-name');
+      } else if (currentMode === COPY_MODES.ENGLISH) {
+        textToCopy = element.textContent.replace('Copied!', '').trim();
+      } else if (currentMode === COPY_MODES.ANSI) {
+        textToCopy = element.getAttribute('data-ansi-name');
+      }
+
+      if (!textToCopy) {
+        alert('No text to copy');
+        return;
+      }
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const tooltip = element.querySelector('.tooltip');
+        tooltip.classList.add('show');
+        setTimeout(() => tooltip.classList.remove('show'), 1500);
+      }).catch(() => {
+        alert('Copy failed');
+      });
+    }
+
+    // Restore previous copy mode from localStorage
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedMode = localStorage.getItem('copyMode');
+
+    if (savedMode && Object.values(COPY_MODES).includes(savedMode)) {
+      currentMode = savedMode;
+      const buttonId = savedMode === 'bangla' ? 'mode-bn' : `mode-${savedMode}`;
+      const savedBtn = document.getElementById(buttonId);
+      if (savedBtn) savedBtn.click();
+    }
+  });
+  </script>
+</body>
+</html>

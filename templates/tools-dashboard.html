@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tools Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f4f7fa;
+      color: #333;
+    }
+
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .container {
+      flex: 1;
+      max-width: 1300px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    @media (min-width: 1200px) {
+      .grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
+    }
+
+    .tool-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease;
+      text-align: center;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .tool-card h3 {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #2c3e50;
+    }
+
+    .tool-card a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .icon {
+      font-size: 36px;
+      color: #3498db;
+    }
+
+    footer {
+      background: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <header>
+      <h1>Department Tools Dashboard</h1>
+    </header>
+
+    <div class="container">
+      <div class="grid">
+        <div class="tool-card">
+          <a href="{% url 'exam_duty_roster' %}">
+            <div class="icon">📄</div>
+            <h3>Exam Duty Roster</h3>
+          </a>
+        </div>
+        <div class="tool-card">
+          <a href="/class-schedule-maker/">
+            <div class="icon">📅</div>
+            <h3>Class Schedule Maker</h3>
+          </a>
+        </div>
+        <div class="tool-card">
+          <a href="/pdf-to-image/">
+            <div class="icon">🖼️</div>
+            <h3>PDF to Image Converter</h3>
+          </a>
+        </div>
+        <div class="tool-card">
+          <a href="/file-history/">
+            <div class="icon">🗂️</div>
+            <h3>Conversion History</h3>
+          </a>
+        </div>
+        <div class="tool-card">
+          <a href="/marks-entry/">
+            <div class="icon">📝</div>
+            <h3>Marks Entry</h3>
+          </a>
+        </div>
+        <div class="tool-card">
+          <a href="/student-list/">
+            <div class="icon">👨‍🎓</div>
+            <h3>Student List Generator</h3>
+          </a>
+        </div>
+        <!-- Add more tool-card blocks as needed -->
+         <div class="tool-card">
+        <a href="/course-outline-upload/">
+            <div class="icon">📚</div>
+            <h3>Course Outline Upload</h3>
+        </a>
+        </div>
+
+        <div class="tool-card">
+        <a href="/attendance-sheet/">
+            <div class="icon">🧾</div>
+            <h3>Attendance Sheet Generator</h3>
+        </a>
+        </div>
+
+        <div class="tool-card">
+        <a href="/tabulation-sheet/">
+            <div class="icon">📊</div>
+            <h3>Tabulation Sheet</h3>
+        </a>
+        </div>
+
+        <div class="tool-card">
+        <a href="/notice-board/">
+            <div class="icon">📢</div>
+            <h3>Notice Board Manager</h3>
+        </a>
+        </div>
+
+        <div class="tool-card">
+        <a href="/teacher-duty-chart/">
+            <div class="icon">🧑‍🏫</div>
+            <h3>Teacher Duty Chart</h3>
+        </a>
+        </div>
+
+        <div class="tool-card">
+        <a href="/student-evaluation/">
+            <div class="icon">✅</div>
+            <h3>Student Evaluation Tool</h3>
+        </a>
+        </div>
+
+        <div class="tool-card">
+        <a href="/syllabus-archive/">
+            <div class="icon">📂</div>
+            <h3>Syllabus Archive</h3>
+        </a>
+        </div>
+
+        <div class="tool-card">
+        <a href="/exam-result-entry/">
+            <div class="icon">📥</div>
+            <h3>Exam Result Entry</h3>
+        </a>
+        </div>
+
+        <div class="tool-card">
+        <a href="{% url 'faculty_list' %}">
+            <div class="icon">👨‍🏫</div>
+            <h3>Faculty Members List</h3>
+        </a>
+        </div>
+
+        <div class="tool-card">
+        <a href="/calendar-planner/">
+            <div class="icon">🗓️</div>
+            <h3>Academic Calendar Planner</h3>
+        </a>
+        </div>
+
+      </div>
+    </div>
+
+    <footer>
+      &copy; 2025 Department of Al-Qur'an & Islamic Studies | All rights reserved.
+    </footer>
+  </div>
+</body>
+</html>
