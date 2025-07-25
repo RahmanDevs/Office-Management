@@ -58,7 +58,7 @@
     }
 
     select,
-    input[type="date"] {
+    input[type="text"] {
       padding: 8px 10px;
       border: 1.5px solid #bbb;
       border-radius: 5px;
@@ -147,9 +147,9 @@
 </head>
 <body>
 
-<h2>Exam Duty Roster</h2>
+<h2>Exam Bill Notesheet</h2>
 
-<form id="roster-form" onsubmit="event.preventDefault(); submitForm();">
+<form id="notesheet-form" onsubmit="event.preventDefault(); submitForm();">
   <div class="row">
     <div class="form-group">
       <label>Program</label>
@@ -202,72 +202,29 @@
     </div>
   </div>
 
+
+
   <hr><br>
   <div id="courses"></div>
 
-  <template id="course-template">
     <div class="course-row">
       <div class="row">
         <div class="form-group">
-          <label>Course Code</label>
-          <select name="course_code" required></select>
+          <label>Number Of Teacher</label>
+          <input value="14" name="num_of_teacher" type="text" style="width:97%" required>
         </div>
         <div class="form-group">
-          <label>Date</label>
-          <input type="date" name="exam_date" required>
+          <label>Total Amount</label>
+          <input name="amount" type="text" style="width:97%" required>
         </div>
-        <div class="form-group">
-          <label>Time</label>
-          <select name="exam_session" required>
-            <option value="morning">Morning</option>
-            <option value="evening">Evening</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="form-group">
-            <label>Head Examiner</label>
-            <select name="head_examiner">
-                <option value="">--Select Head Examiner--</option>
-            {% for teacher in teachers %}
-              <option value="{{ teacher.full_name_ansi }}">{{ teacher.full_name_en }}</option>
-            {% endfor %}
-            </select>
-          </div>
-        <div class="form-group">
-          <label>Envisilators</label>
-          <select name="envisilators" multiple>
-             {% for teacher in teachers %}
-              <option value="{{ teacher.full_name_ansi }}" data-short="{{ teacher.short_name_en }}">{{ teacher.full_name_en }}</option>
-             {% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Assistants</label>
-          <select name="assistants" multiple>
-            {% for officer in officers %}
-              <option value="{{ officer.full_name_ansi }}" data-data_of_birth="{{ officer.data_of_birth }}" data-designation="{{ officer.designation }}" data-short="{{ officer.short_name_en }}">{{ officer.full_name_en }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-
-      <div class="close-container" onclick="removeCourseRow(this)">
-        <div class="leftright"></div>
-        <div class="rightleft"></div>
-        <label class="close">close</label>
-      </div>
     </div>
-  </template>
 
-  <button type="button" onclick="addCourseRow()">Add Course</button>
   <button type="submit">Generate</button>
 </form>
 
 <!-- div for url -->
 <div id="url-container" style="display: none;">
-  <input type="text" id="submit_exam_roster_url" value="{% url 'exam_duty_roster' %}" readonly>
+  <input type="text" id="submit_exam_roster_url" value="{% url 'exam_bill_notesheet' %}" readonly>
 </div>
 
 
@@ -280,71 +237,6 @@
 
 const submit_exam_roster_url = document.getElementById('submit_exam_roster_url').value;
 
-
-const coursesByProgramSemester = {
-    "BTIS": {
-      "1st": ["1101", "1102", "1103", "1104", "1105",  ],
-      "2nd": ["1201", "1202", "1203", "1204", "1205",  ],
-      "3rd": ["2301", "2302", "2303", "2304", "2305",  ],
-      "4th": ["2401", "2402", "2403", "2404", "2405",  ],
-      "5th": ["311", "312", "313", "314", "315",  ],
-      "6th": ["321", "322", "323", "324", "325",  ],
-      "7th": ["411", "412", "413", "414", "415",  "416" ],
-      "8th": ["421", "422", "423", "424", "425", "426" ],
-    },
-    "MTIS": {
-      "1st": ["5101", "5102", "5103", "5104", "5105", "5106", "5107"],
-      "2nd": ["5201", "5202", "5203", "5204", "5205", "5206", "5207"],
-      
-    }
-  };
-
-function initializeSelect2(context) {
-  $(context).find('select[name="envisilators"], select[name="assistants"]').select2({
-    maximumSelectionLength: 6,
-    width: '100%',
-    templateSelection: (opt) => $(opt.element).data('short') || opt.text,
-  });
-}
-
-function updateCourseOptions(selectElem, program, semester) {
-  selectElem.innerHTML = '<option value="">--Select--</option>';
-  const courses = coursesByProgramSemester[program]?.[semester] || [];
-  courses.forEach(code => {
-    const option = document.createElement('option');
-    option.value = code;
-    option.textContent = code;
-    selectElem.appendChild(option);
-  });
-}
-
-function addCourseRow() {
-  const container = document.getElementById('courses');
-  const template = document.getElementById('course-template');
-  const clone = template.content.cloneNode(true);
-  container.appendChild(clone);
-
-  const lastRow = container.querySelector('.course-row:last-child');
-  initializeSelect2(lastRow);
-
-  const program = document.querySelector('select[name="program"]').value;
-  const semester = document.querySelector('select[name="semester"]').value;
-  const courseSelect = lastRow.querySelector('select[name="course_code"]');
-  updateCourseOptions(courseSelect, program, semester);
-}
-
-function removeCourseRow(button) {
-  button.closest('.course-row').remove();
-}
-
-function updateAllCourseCodes() {
-  const program = document.querySelector('select[name="program"]').value;
-  const semester = document.querySelector('select[name="semester"]').value;
-
-  document.querySelectorAll('select[name="course_code"]').forEach(selectElem => {
-    updateCourseOptions(selectElem, program, semester);
-  });
-}
 
 // CSRF for Django
 function getCookie(name) {
@@ -360,26 +252,19 @@ function getCookie(name) {
 
 // SUBMIT AS JSON
 function submitForm() {
-  const form = document.getElementById('roster-form');
+  const form = document.getElementById('notesheet-form');
+  console.log("I am OK")
   const data = {
     program: form.program.value,
     semester: form.semester.value,
     exam_year: form.exam_year.value,
     exam_type: form.exam_type.value,
     chair_exam_committee: form.chair_exam_committee.value,
-    courses: []
+    num_of_teacher: form.num_of_teacher.value,
+    amount: form.amount.value
   };
 
-  document.querySelectorAll('.course-row').forEach(row => {
-    data.courses.push({
-      course_code: row.querySelector('select[name="course_code"]').value,
-      exam_date: row.querySelector('input[name="exam_date"]').value,
-      exam_session: row.querySelector('select[name="exam_session"]').value,
-      head_examiner: row.querySelector('select[name="head_examiner"]').value,
-      envisilators: $(row).find('select[name="envisilators"]').val() || [],
-      assistants: $(row).find('select[name="assistants"]').val() || []
-    });
-  });
+
 
   fetch(submit_exam_roster_url, {
     method: 'POST',
@@ -418,11 +303,6 @@ function submitForm() {
 
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  addCourseRow();
-  document.querySelector('select[name="program"]').addEventListener('change', updateAllCourseCodes);
-  document.querySelector('select[name="semester"]').addEventListener('change', updateAllCourseCodes);
-});
 </script>
 </body>
 </html>

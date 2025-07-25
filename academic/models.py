@@ -32,26 +32,40 @@ COMMITTEE_ROLE_CHOICES = [
     ("coordinator", "Coordinator"),
 ]
 
+class AcademicYear(models.Model):
+    title = models.CharField(max_length=255, blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    year = models.CharField(max_length=4, blank=True, null=True)
+    def __str__(self):
+        return self.year
+
 class Program(models.Model):
-    name_en = models.CharField(max_length=255, blank=True, null=True)
-    name_arabic = models.CharField(max_length=255, blank=True, null=True)
-    name_uni = models.CharField(max_length=255, blank=True, null=True)
-    name_ansi = models.CharField(max_length=255, blank=True, null=True)
+    title_en = models.CharField(max_length=255, blank=True, null=True)
+    title_arabic = models.CharField(max_length=255, blank=True, null=True)
+    title_uni = models.CharField(max_length=255, blank=True, null=True)
+    title_ansi = models.CharField(max_length=255, blank=True, null=True)
     code = models.CharField(max_length=50, blank=True, null=True)
     level = models.CharField(max_length=50, choices=LEVEL_CHOICES)
-    session = models.CharField(max_length=20, choices=SESSION_CHOICES)
-    year = models.CharField(max_length=4, blank=True, null=True)
+    admission_session = models.CharField(max_length=20, choices=SESSION_CHOICES)
+    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE, related_name='programs', blank=True, null=True)
 
     def __str__(self):
-        return f"{self.name_en}:{self.level}-{self.year}"
+        return f"{self.title_en}:{self.level}-{self.academic_year}"
 class Syllabus(models.Model):
     title=models.CharField(max_length=255, blank=True, null=True)
     program=models.ForeignKey(Program, on_delete=models.CASCADE, related_name='syllabus', blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.title}:{self.program}"
 
 
 class Course(models.Model):
     course_code = models.CharField(max_length=50)
-    course_name = models.CharField(max_length=255)
+    title_en = models.CharField(max_length=255, blank=True, null=True)
+    title_arabic = models.CharField(max_length=255, blank=True, null=True)
+    title_uni = models.CharField(max_length=255, blank=True, null=True)
+    title_ansi = models.CharField(max_length=255, blank=True, null=True)
     examin_1=models.ForeignKey(Teacher,related_name='courses_as_examiner1', on_delete=models.CASCADE,blank=True,null=True)
     examin_2=models.ForeignKey(Teacher,related_name='courses_as_examiner2', on_delete=models.CASCADE,blank=True,null=True)
     examin_3=models.ForeignKey(Teacher,related_name='courses_as_examiner3', on_delete=models.CASCADE,blank=True,null=True)
@@ -63,9 +77,10 @@ class Course(models.Model):
 
 
     def __str__(self):
-        return self.course_name
+        return self.course_code
 
 class ExamCommittee(models.Model):
+    title_en = models.CharField(max_length=255, blank=True, null=True)
     title_uni = models.CharField(max_length=255, blank=True, null=True)
     title_ansi = models.CharField(max_length=255, blank=True, null=True)
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='exam_committee', blank=True, null=True)
