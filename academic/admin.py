@@ -11,7 +11,7 @@ class AcademicYearAdmin(admin.ModelAdmin):
 admin.site.register(AcademicYear, AcademicYearAdmin)
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('course_code',  'examin_1', 'examin_2', 'examin_3', 'examin_4', 'course_credits', 'exam_hours')
+    list_display = ('course_code',  'examin_1', 'examin_2', 'title_en', 'title_arabic', 'title_uni', )
     search_fields = ('course_code',)
     list_filter = ('syllabus',)
 

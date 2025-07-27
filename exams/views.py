@@ -9,8 +9,8 @@ import uuid
 from datetime import date, datetime
 from django.views.decorators.csrf import csrf_exempt
 import json
-
-
+from core.utils import convert_number_to_words_ansi
+import locale
 
 
 def create_exam_routine(request):
@@ -134,6 +134,8 @@ def generate_duty_roster_docx(request):
         return render(request, 'exams/duty_roster.html', context=context)
 @csrf_exempt  
 def generate_exam_bill_notesheet(request):
+    # Set locale to Indian (may not work on all systems)
+    locale.setlocale(locale.LC_ALL, 'en_IN')
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -189,9 +191,9 @@ def generate_exam_bill_notesheet(request):
                 'chair_exam_committee': chair_exam_committee.full_name_ansi,
                 'exam_year': exam_year,
                 'exam_type': exam_type,
-                'amount': amount,
-                'num_of_teacher':num_of_teacher,
-                'amount_word':'kjhjjhjhjshdf'
+                'amount': locale.format_string("%d", int(amount), grouping=True),
+                'num_of_teacher': num_of_teacher,
+                'amount_word': convert_number_to_words_ansi(int(amount)),
             }
 
             # Render and save the document

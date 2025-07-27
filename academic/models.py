@@ -61,6 +61,17 @@ class Syllabus(models.Model):
 
 
 class Course(models.Model):
+    SEMESTER_CHOICES = [
+        ("1st Semester", "1st Semester"),
+        ("2nd Semester", "2nd Semester"),
+        ("3rd Semester", "3rd Semester"),
+        ("4th Semester", "4th Semester"),
+        ("5th Semester", "5th Semester"),
+        ("6th Semester", "6th Semester"),
+        ("7th Semester", "7th Semester"),
+        ("8th Semester", "8th Semester"),
+        ]
+
     course_code = models.CharField(max_length=50)
     title_en = models.CharField(max_length=255, blank=True, null=True)
     title_arabic = models.CharField(max_length=255, blank=True, null=True)
@@ -70,6 +81,7 @@ class Course(models.Model):
     examin_2=models.ForeignKey(Teacher,related_name='courses_as_examiner2', on_delete=models.CASCADE,blank=True,null=True)
     examin_3=models.ForeignKey(Teacher,related_name='courses_as_examiner3', on_delete=models.CASCADE,blank=True,null=True)
     examin_4=models.ForeignKey(Teacher,related_name='courses_as_examiner4', on_delete=models.CASCADE,blank=True,null=True)
+    semester = models.CharField(max_length=20, choices=SEMESTER_CHOICES, blank=True, null=True)
     course_credits = models.IntegerField(default=3)
     exam_hours = models.IntegerField(default=4)
     syllabus = models.ForeignKey(Syllabus, on_delete=models.CASCADE, related_name='courses', blank=True, null=True)
