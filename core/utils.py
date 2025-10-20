@@ -1,4 +1,4 @@
-
+from datetime import date, datetime
 
 #-----# This  function converts a number to its Bangla word representation Start #-----#
 def convert_digit(d):
@@ -89,3 +89,17 @@ def convert_number_to_words_ansi(amount):
 
     return (rupees + paise).strip()
 #-----# This  function converts a number to its Bangla word representation End #-----#
+
+
+
+def bangla_date_format_ansi(date_str):
+    """
+    Convert a date string from 'YYYY-MM-DD' format to 'DD/MM/YYYY' format.
+    """
+    try:
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%d/%m/%Y")
+        bangla_days_ansi = ['†mvgevi', 'g½jevi', 'eyaevi', 'e„n¯úwZevi', 'ïµevi', 'kwbevi', 'iweevi']
+        return bangla_days_ansi[date_obj.weekday()]
+    except ValueError:
+        return None

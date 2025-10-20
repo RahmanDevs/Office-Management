@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number to Word Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'SutonnyMJ';
+            src: url('https://cdnjs.cloudflare.com/ajax/libs/bangla-web-fonts/1.0.0/SutonnyMJ.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f4f7fa;
+            color: #2c3e50;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        .converter-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border-radius: 8px;
+            padding: 15px;
+            color: #2c3e50;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .info-box-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .input-group input {
+            width: 100%;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            padding: 12px;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .segmented-control {
+            background: #e0e0e0;
+            border-radius: 30px;
+            padding: 6px;
+            display: inline-flex;
+            gap: 4px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .segmented-control button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #2c3e50;
+        }
+
+        .segmented-control button:hover:not(.active) {
+            background: #c5d9f7;
+        }
+
+        .segmented-control button.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
+        }
+
+        .convert-btn {
+            background: #3498db;
+            color: white;
+            padding: 14px 40px;
+            border-radius: 30px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .convert-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .convert-btn:active {
+            transform: translateY(0);
+        }
+
+        .clear-btn {
+            background: #ecf0f1;
+            color: #2c3e50;
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .clear-btn:hover {
+            background: #d5d8dc;
+            transform: translateY(-2px);
+        }
+
+        .clear-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .result-panel.show {
+            display: flex;
+            animation: fadeInBackdrop 0.3s ease;
+        }
+
+        @keyframes fadeInBackdrop {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUpScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideUpScale {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ecf0f1;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: #2c3e50;
+        }
+
+        .close-popup:hover {
+            background: #e74c3c;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .result-header-icon {
+            font-size: 40px;
+            animation: bounceIn 0.6s ease;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .result-header h3 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .result-content {
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f4f8 100%);
+            border-radius: 12px;
+            border-left: 5px solid #3498db;
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease 0.2s both;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3498db;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .result-text {
+            font-size: 20px;
+            color: #2c3e50;
+            line-height: 1.8;
+            word-wrap: break-word;
+            font-weight: 500;
+        }
+
+        .result-text.bangla-ansi {
+            font-family: 'SutonnyMJ', 'Roboto', sans-serif;
+            font-size: 22px;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            animation: fadeInUp 0.5s ease 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: #27ae60;
+        }
+
+        .close-btn {
+            background: #ecf0f1;
+            color: #2c3e50;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .close-btn:hover {
+            background: #d5d8dc;
+            transform: translateY(-2px);
+        }
+
+        .close-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #fee;
+            border-left: 4px solid #e74c3c;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 14px;
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+            }
+
+            .converter-panel,
+            .result-card {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 24px;
+            }
+
+            .segmented-control {
+                flex-direction: column;
+                border-radius: 10px;
+            }
+
+            .segmented-control button {
+                border-radius: 8px;
+            }
+
+            .result-actions {
+                flex-direction: column;
+            }
+
+            .result-card {
+                max-height: 90vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <header>
+            <h1>🔢 Number to Word Converter</h1>
+            <p>Convert numbers to words in Bangla Unicode, English, and Bangla ANSI</p>
+        </header>
+
+        <div class="container">
+            <div class="converter-panel">
+                <div class="info-box">
+                    <span class="info-box-icon">💡</span>
+                    <div>
+                        <strong>How to use:</strong> Enter any number (up to 999 crore) and select your preferred output format. Bangla formats support Taka/Poysa notation for decimal values.
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="numberInput">Enter Number</label>
+                    <input 
+                        type="text" 
+                        id="numberInput" 
+                        placeholder="e.g., 12345 or 123.45"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="input-group">
+                    <label>Select Output Format</label>
+                    <div class="segmented-control">
+                        <button class="active" data-format="bangla-unicode">Bangla Unicode</button>
+                        <button data-format="english">English</button>
+                        <button data-format="bangla-ansi">Bangla ANSI</button>
+                    </div>
+                </div>
+
+                <button class="convert-btn" onclick="convertNumber()">Convert to Words</button>
+
+                <button class="clear-btn" onclick="clearForm()">
+                    <span>🗑️</span>
+                    <span>Clear All</span>
+                </button>
+
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+
+            <div class="result-panel" id="resultPanel" onclick="closePopupOnBackdrop(event)">
+                <div class="result-card">
+                    <button class="close-popup" onclick="closePopup()">✕</button>
+                    
+                    <div class="result-header">
+                        <span class="result-header-icon">✨</span>
+                        <h3>Conversion Result</h3>
+                    </div>
+
+                    <div class="result-content">
+                        <div class="result-label" id="resultLabel">Bangla Unicode</div>
+                        <div class="result-text" id="resultText"></div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="copy-btn" onclick="copyResult()">
+                            <span id="copyIcon">📋</span>
+                            <span id="copyText">Copy Result</span>
+                        </button>
+                        <button class="close-btn" onclick="closePopup()">
+                            <span>✓</span>
+                            <span>Close</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            © 2025 Number Converter | All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        // State management with localStorage persistence
+        let currentFormat = 'bangla-unicode';
+        let lastResult = '';
+
+        // Initialize: Load saved format from localStorage on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedFormat = localStorage.getItem('numberConverterFormat');
+            if (savedFormat) {
+                currentFormat = savedFormat;
+                updateActiveButton(currentFormat);
+            }
+        });
+
+        function updateActiveButton(format) {
+            document.querySelectorAll('.segmented-control button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.format === format) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function saveFormat(format) {
+            currentFormat = format;
+            // Save to localStorage for persistence
+            localStorage.setItem('numberConverterFormat', format);
+        }
+
+        // Bangla ANSI conversion tables (matching VBA code exactly)
+        const banglaAnsiMap = {
+            // Single digits (1-9)
+            1: 'GK', 2: '`yB', 3: 'wZb', 4: 'Pvi', 5: 'cvuP', 
+            6: 'Qq', 7: 'mvZ', 8: 'AvU', 9: 'bq',
+            
+            // Tens (10-99) - Complete mapping
+            10: '`k', 11: 'GMvi', 12: 'evi', 13: '†Zi', 14: '†PŠÏ',
+            15: 'c‡bi', 16: '†lvj', 17: 'm‡Zi', 18: 'AvVvi', 19: 'Ewbk',
+            
+            20: 'wek', 21: 'GKzk', 22: 'evBk', 23: '†ZBk', 24: 'PweŸk',
+            25: 'cuwPk', 26: 'QvweŸk', 27: 'mvZvk', 28: 'AvVvk', 29: 'EbwÎk',
+            
+            30: 'wÎk', 31: 'GKwÎk', 32: 'ewÎk', 33: '†ZwÎk', 34: '†PŠwÎk',
+            35: 'cuqwÎk', 36: 'QwÎk', 37: 'mvuBwÎk', 38: 'AvUwÎk', 39: 'EbPwjøk',
+            
+            40: 'Pwjøk', 41: 'GKPwjøk', 42: 'weqvwjøk', 43: '†ZZvwjøk', 44: 'Pzqvwjøk',
+            45: 'cuqZvwjøk', 46: '†QPwjøk', 47: 'mvZPwjøk', 48: 'AvUPwjøk', 49: 'EbcÂvk',
+            
+            50: 'cÂvk', 51: 'GKvbœ', 52: 'evqvbœ', 53: 'wZàvbœ', 54: 'Pzqvbœ',
+            55: 'cÂvbœ', 56: 'Qvàvbœ', 57: 'mvZvbœ', 58: 'AvUvbœ', 59: 'EblvU',
+            
+            60: 'lvU', 61: 'GKlwÆ', 62: 'evlwÆ', 63: '†ZlwÆ', 64: '†PŠlwÆ',
+            65: 'cuqlwÆ', 66: '†QlwÆ', 67: 'mvZlwÆ', 68: 'AvUlwÆ', 69: 'EbmËi',
+            
+            70: 'mËi', 71: 'GKvËi', 72: 'evnvËi', 73: 'wZqvËi', 74: 'PzqvËi',
+            75: 'cuPvËi', 76: 'wQqvËi', 77: 'mvZvËi', 78: 'AvUvËi', 79: 'EbAvwk',
+            
+            80: 'Avwk', 81: 'GKvwk', 82: 'weivwk', 83: 'wZivwk', 84: 'Pzivwk',
+            85: 'cuPvwk', 86: 'wQqvwk', 87: 'mvZvwk', 88: 'AvUvwk', 89: 'EbbeŸB',
+            
+            90: 'beŸB', 91: 'GKvbeŸB', 92: 'weivbeŸB', 93: 'wZivbeŸB', 94: 'PzivbeŸB',
+            95: 'cuPvbeŸB', 96: 'wQqvbeŸB', 97: 'mvZvbeŸB', 98: 'AvUvbeŸB', 99: 'wbivbeŸB'
+        };
+
+        // Bangla Unicode conversion tables
+        const banglaUnicodeMap = {
+            1: 'এক', 2: 'দুই', 3: 'তিন', 4: 'চার', 5: 'পাঁচ',
+            6: 'ছয়', 7: 'সাত', 8: 'আট', 9: 'নয়',
+            
+            10: 'দশ', 11: 'এগারো', 12: 'বারো', 13: 'তেরো', 14: 'চৌদ্দ',
+            15: 'পনেরো', 16: 'ষোলো', 17: 'সতেরো', 18: 'আঠারো', 19: 'উনিশ',
+            
+            20: 'বিশ', 21: 'একুশ', 22: 'বাইশ', 23: 'তেইশ', 24: 'চব্বিশ',
+            25: 'পঁচিশ', 26: 'ছাব্বিশ', 27: 'সাতাশ', 28: 'আঠাশ', 29: 'উনত্রিশ',
+            
+            30: 'ত্রিশ', 31: 'একত্রিশ', 32: 'বত্রিশ', 33: 'তেত্রিশ', 34: 'চৌত্রিশ',
+            35: 'পঁয়ত্রিশ', 36: 'ছত্রিশ', 37: 'সাঁইত্রিশ', 38: 'আটত্রিশ', 39: 'উনচল্লিশ',
+            
+            40: 'চল্লিশ', 41: 'একচল্লিশ', 42: 'বিয়াল্লিশ', 43: 'তেতাল্লিশ', 44: 'চুয়াল্লিশ',
+            45: 'পঁয়তাল্লিশ', 46: 'ছেচল্লিশ', 47: 'সাতচল্লিশ', 48: 'আটচল্লিশ', 49: 'উনপঞ্চাশ',
+            
+            50: 'পঞ্চাশ', 51: 'একান্ন', 52: 'বায়ান্ন', 53: 'তিপ্পান্ন', 54: 'চুয়ান্ন',
+            55: 'পঞ্চান্ন', 56: 'ছাপ্পান্ন', 57: 'সাতান্ন', 58: 'আটান্ন', 59: 'উনষাট',
+            
+            60: 'ষাট', 61: 'একষট্টি', 62: 'বাষট্টি', 63: 'তেষট্টি', 64: 'চৌষট্টি',
+            65: 'পঁয়ষট্টি', 66: 'ছেষট্টি', 67: 'সাতষট্টি', 68: 'আটষট্টি', 69: 'উনসত্তর',
+            
+            70: 'সত্তর', 71: 'একাত্তর', 72: 'বাহাত্তর', 73: 'তিয়াত্তর', 74: 'চুয়াত্তর',
+            75: 'পঁচাত্তর', 76: 'ছিয়াত্তর', 77: 'সাতাত্তর', 78: 'আটাত্তর', 79: 'উনআশি',
+            
+            80: 'আশি', 81: 'একাশি', 82: 'বিরাশি', 83: 'তিরাশি', 84: 'চুরাশি',
+            85: 'পঁচাশি', 86: 'ছিয়াশি', 87: 'সাতাশি', 88: 'আটাশি', 89: 'উননব্বই',
+            
+            90: 'নব্বই', 91: 'একানব্বই', 92: 'বিরানব্বই', 93: 'তিরানব্বই', 94: 'চুরানব্বই',
+            95: 'পঁচানব্বই', 96: 'ছিয়ানব্বই', 97: 'সাতানব্বই', 98: 'আটানব্বই', 99: 'নিরানব্বই'
+        };
+
+        // Segmented control handler
+        document.querySelectorAll('.segmented-control button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.segmented-control button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+                saveFormat(this.dataset.format);
+            });
+        });
+
+        // Enter key handler
+        document.getElementById('numberInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertNumber();
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            document.getElementById('resultPanel').classList.remove('show');
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        function convertNumber() {
+            hideError();
+            const input = document.getElementById('numberInput').value.trim();
+
+            if (!input) {
+                showError('Please enter a number');
+                return;
+            }
+
+            const number = parseFloat(input);
+            if (isNaN(number)) {
+                showError('Please enter a valid number');
+                return;
+            }
+
+            if (number < 0) {
+                showError('Negative numbers are not supported');
+                return;
+            }
+
+            if (number >= 10000000000) {
+                showError('Number is too large. Maximum: 999 crore');
+                return;
+            }
+
+            let result = '';
+            if (currentFormat === 'english') {
+                result = convertToEnglish(number);
+            } else if (currentFormat === 'bangla-unicode') {
+                result = convertToBanglaUnicode(number);
+            } else if (currentFormat === 'bangla-ansi') {
+                result = convertToBanglaAnsi(number);
+            }
+
+            displayResult(result);
+        }
+
+        // Bangla ANSI Conversion (matching VBA logic exactly)
+        function convertToBanglaAnsi(num) {
+            const parts = num.toString().split('.');
+            let myNumber = parts[0];
+            let rupees = '';
+            let paise = '';
+
+            // Convert paise (decimal part)
+            if (parts[1]) {
+                const temp = (parts[1] + '00').substring(0, 2);
+                paise = convertBanglaAnsiTens(temp);
+            }
+
+            let count = 1;
+            
+            // Convert rupees part
+            while (myNumber !== '') {
+                let temp = '';
+                
+                if (count === 1) {
+                    // First iteration: take last 3 digits
+                    const lastThree = myNumber.slice(-3);
+                    temp = convertBanglaAnsiHundreds(lastThree);
+                    
+                    if (temp !== '') {
+                        rupees = temp + rupees;
+                    }
+                    
+                    if (myNumber.length > 3) {
+                        myNumber = myNumber.substring(0, myNumber.length - 3);
+                    } else {
+                        myNumber = '';
+                    }
+                } else {
+                    // Subsequent iterations: take last 2 digits
+                    if (myNumber.length === 1) {
+                        temp = convertBanglaAnsiDigit(myNumber);
+                    } else {
+                        const lastTwo = myNumber.slice(-2);
+                        temp = convertBanglaAnsiTens(lastTwo);
+                    }
+                    
+                    const places = ['', '', ' nvRvi ', ' j¶ ', ' †KvwU '];
+                    
+                    if (temp !== '') {
+                        rupees = temp + places[count] + rupees;
+                    }
+                    
+                    if (myNumber.length >= 2) {
+                        myNumber = myNumber.substring(0, myNumber.length - 2);
+                    } else {
+                        myNumber = '';
+                    }
+                }
+                
+                count++;
+            }
+
+            // Format output
+            let result = '';
+            if (rupees !== '') {
+                result = rupees.trim() + ' UvKv';
+            }
+            if (paise !== '') {
+                result += ' ' + paise + ' cqmv';
+            }
+            
+            return result.trim() || 'k~b¨';
+        }
+
+        function convertBanglaAnsiHundreds(myNumber) {
+            if (parseInt(myNumber) === 0) return '';
+            
+            myNumber = ('000' + myNumber).slice(-3);
+            let result = '';
+            
+            // Hundreds place
+            if (myNumber[0] !== '0') {
+                result = convertBanglaAnsiDigit(myNumber[0]) + 'kZ ';
+            }
+            
+            // Tens place
+            if (myNumber[1] !== '0') {
+                result += convertBanglaAnsiTens(myNumber.substring(1));
+            } else {
+                result += convertBanglaAnsiDigit(myNumber[2]);
+            }
+            
+            return result.trim();
+        }
+
+        function convertBanglaAnsiTens(myTens) {
+            const val = parseInt(myTens);
+            if (banglaAnsiMap[val]) {
+                return banglaAnsiMap[val];
+            }
+            return '';
+        }
+
+        function convertBanglaAnsiDigit(myDigit) {
+            const val = parseInt(myDigit);
+            if (banglaAnsiMap[val]) {
+                return banglaAnsiMap[val];
+            }
+            return '';
+        }
+
+        // Bangla Unicode Conversion (similar structure)
+        function convertToBanglaUnicode(num) {
+            const parts = num.toString().split('.');
+            let myNumber = parts[0];
+            let rupees = '';
+            let paise = '';
+
+            if (parts[1]) {
+                const temp = (parts[1] + '00').substring(0, 2);
+                paise = convertBanglaUnicodeTens(temp);
+            }
+
+            let count = 1;
+            
+            while (myNumber !== '') {
+                let temp = '';
+                
+                if (count === 1) {
+                    const lastThree = myNumber.slice(-3);
+                    temp = convertBanglaUnicodeHundreds(lastThree);
+                    
+                    if (temp !== '') {
+                        rupees = temp + rupees;
+                    }
+                    
+                    if (myNumber.length > 3) {
+                        myNumber = myNumber.substring(0, myNumber.length - 3);
+                    } else {
+                        myNumber = '';
+                    }
+                } else {
+                    if (myNumber.length === 1) {
+                        temp = convertBanglaUnicodeDigit(myNumber);
+                    } else {
+                        const lastTwo = myNumber.slice(-2);
+                        temp = convertBanglaUnicodeTens(lastTwo);
+                    }
+                    
+                    const places = ['', '', ' হাজার ', ' লক্ষ ', ' কোটি '];
+                    
+                    if (temp !== '') {
+                        rupees = temp + places[count] + rupees;
+                    }
+                    
+                    if (myNumber.length >= 2) {
+                        myNumber = myNumber.substring(0, myNumber.length - 2);
+                    } else {
+                        myNumber = '';
+                    }
+                }
+                
+                count++;
+            }
+
+            let result = '';
+            if (rupees !== '') {
+                result = rupees.trim() + ' টাকা';
+            }
+            if (paise !== '') {
+                result += ' ' + paise + ' পয়সা';
+            }
+            
+            return result.trim() || 'শূন্য';
+        }
+
+        function convertBanglaUnicodeHundreds(myNumber) {
+            if (parseInt(myNumber) === 0) return '';
+            
+            myNumber = ('000' + myNumber).slice(-3);
+            let result = '';
+            
+            if (myNumber[0] !== '0') {
+                result = convertBanglaUnicodeDigit(myNumber[0]) + 'শত ';
+            }
+            
+            if (myNumber[1] !== '0') {
+                result += convertBanglaUnicodeTens(myNumber.substring(1));
+            } else {
+                result += convertBanglaUnicodeDigit(myNumber[2]);
+            }
+            
+            return result.trim();
+        }
+
+        function convertBanglaUnicodeTens(myTens) {
+            const val = parseInt(myTens);
+            if (banglaUnicodeMap[val]) {
+                return banglaUnicodeMap[val];
+            }
+            return '';
+        }
+
+        function convertBanglaUnicodeDigit(myDigit) {
+            const val = parseInt(myDigit);
+            if (banglaUnicodeMap[val]) {
+                return banglaUnicodeMap[val];
+            }
+            return '';
+        }
+
+        // English Conversion
+        function convertToEnglish(num) {
+            if (num === 0) return 'zero';
+
+            const parts = num.toString().split('.');
+            const integerPart = parseInt(parts[0]);
+            let result = convertEnglishInteger(integerPart);
+
+            if (parts[1]) {
+                result += ' point';
+                const ones = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+                for (let digit of parts[1]) {
+                    result += ' ' + ones[parseInt(digit)];
+                }
+            }
+
+            return result.trim();
+        }
+
+        function convertEnglishInteger(num) {
+            const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+            const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+            const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+            if (num === 0) return '';
+
+            let result = '';
+
+            // Billions
+            if (num >= 1000000000) {
+                result += convertEnglishHundreds(Math.floor(num / 1000000000), ones, teens, tens) + ' billion ';
+                num %= 1000000000;
+            }
+
+            // Millions
+            if (num >= 1000000) {
+                result += convertEnglishHundreds(Math.floor(num / 1000000), ones, teens, tens) + ' million ';
+                num %= 1000000;
+            }
+
+            // Thousands
+            if (num >= 1000) {
+                result += convertEnglishHundreds(Math.floor(num / 1000), ones, teens, tens) + ' thousand ';
+                num %= 1000;
+            }
+
+            // Hundreds, tens, ones
+            if (num > 0) {
+                result += convertEnglishHundreds(num, ones, teens, tens);
+            }
+
+            return result.trim();
+        }
+
+        function convertEnglishHundreds(num, ones, teens, tens) {
+            let result = '';
+
+            if (num >= 100) {
+                result += ones[Math.floor(num / 100)] + ' hundred ';
+                num %= 100;
+            }
+
+            if (num >= 10 && num < 20) {
+                result += teens[num - 10];
+            } else {
+                if (num >= 20) {
+                    result += tens[Math.floor(num / 10)] + ' ';
+                    num %= 10;
+                }
+                if (num > 0) {
+                    result += ones[num];
+                }
+            }
+
+            return result.trim();
+        }
+
+        function displayResult(result) {
+            lastResult = result;
+            const resultTextElement = document.getElementById('resultText');
+            resultTextElement.textContent = result;
+            
+            // Apply SutonnyMJ font for Bangla ANSI
+            if (currentFormat === 'bangla-ansi') {
+                resultTextElement.classList.add('bangla-ansi');
+            } else {
+                resultTextElement.classList.remove('bangla-ansi');
+            }
+            
+            const formatLabels = {
+                'bangla-unicode': 'Bangla Unicode',
+                'english': 'English',
+                'bangla-ansi': 'Bangla ANSI'
+            };
+            document.getElementById('resultLabel').textContent = formatLabels[currentFormat];
+            
+            document.getElementById('resultPanel').classList.add('show');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+            
+            // Reset copy button
+            const copyBtn = document.querySelector('.copy-btn');
+            copyBtn.classList.remove('copied');
+            document.getElementById('copyIcon').textContent = '📋';
+            document.getElementById('copyText').textContent = 'Copy Result';
+        }
+
+        function closePopup() {
+            document.getElementById('resultPanel').classList.remove('show');
+            document.body.style.overflow = 'auto'; // Restore scroll
+        }
+
+        function closePopupOnBackdrop(event) {
+            if (event.target.id === 'resultPanel') {
+                closePopup();
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('numberInput').value = '';
+            hideError();
+            closePopup();
+            document.getElementById('numberInput').focus();
+        }
+
+        function copyResult() {
+            navigator.clipboard.writeText(lastResult).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                copyBtn.classList.add('copied');
+                document.getElementById('copyIcon').textContent = '✅';
+                document.getElementById('copyText').textContent = 'Copied!';
+
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    document.getElementById('copyIcon').textContent = '📋';
+                    document.getElementById('copyText').textContent = 'Copy Result';
+                }, 2000);
+            }).catch(err => {
+                showError('Failed to copy to clipboard');
+            });
+        }
+
+        // ESC key to close popup
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        });
+    </script>
+</body>
+</html>

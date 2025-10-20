@@ -11,3 +11,9 @@ urlpatterns = [
 
 ]
 
+from .views import google_sheet_docx_page, generate_docx_from_google_sheet
+
+urlpatterns += [
+    path("google-sheet-docx/", google_sheet_docx_page, name="google_sheet_docx_page"),
+    path("google-sheet-docx/generate/", generate_docx_from_google_sheet, name="generate_docx_from_google_sheet"),
+]

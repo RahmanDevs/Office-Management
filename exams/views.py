@@ -9,8 +9,97 @@ import uuid
 from datetime import date, datetime
 from django.views.decorators.csrf import csrf_exempt
 import json
-from core.utils import convert_number_to_words_ansi
+from core.utils import convert_number_to_words_ansi, bangla_date_format_ansi
 import locale
+
+import io
+import re
+import requests
+import pandas as pd
+from django.shortcuts import render
+from django.http import HttpResponse
+from docx import Document
+from docx.shared import Pt
+from docx.oxml.ns import qn
+
+def google_sheet_docx_page(request):
+    # just render the page with input box & button
+    return render(request, "exams/google_sheet_docx.html")
+
+
+def generate_docx_from_google_sheet(request):
+    if request.method != "POST":
+        return HttpResponse("Invalid request", status=405)
+
+    sheet_url = request.POST.get("sheet_url")
+    if not sheet_url:
+        return HttpResponse("No link provided", status=400)
+
+    try:
+        # Convert to CSV export link
+        match = re.search(r"/d/([a-zA-Z0-9-_]+)", sheet_url)
+        if not match:
+            return HttpResponse("Invalid Google Sheet link", status=400)
+
+        sheet_id = match.group(1)
+        csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+        csv_response = requests.get(csv_url)
+        csv_response.raise_for_status()
+
+        df = pd.read_csv(io.StringIO(csv_response.text), dtype=str).fillna("")
+
+        # Create Word document
+        doc = Document()
+        style = doc.styles['Normal']
+        font = style.font
+        font.name = "Kalpurush"  # use a Bangla-capable font
+        font.size = Pt(11)
+        style.element.rPr.rFonts.set(qn('w:eastAsia'), "Kalpurush")
+
+        doc.add_heading("আবেদনকারীর তালিকা", 0)
+        table = doc.add_table(rows=1, cols=3)
+        table.style = "Table Grid"
+
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = "ক্রমিক"
+        hdr_cells[1].text = "প্রার্থীর নাম ও ঠিকানা"
+        hdr_cells[2].text = "গবেষণা শিরোনাম"
+
+        def build_info(row):
+            parts = []
+            if "প্রার্থীর নাম" in df.columns: parts.append(row["প্রার্থীর নাম"])
+            if "পিতার নাম" in df.columns: parts.append(f"পিতা: {row['পিতার নাম']}")
+            if "মাতার নাম" in df.columns: parts.append(f"মাতা: {row['মাতার নাম']}")
+            addr = []
+            if "গ্রাম" in df.columns: addr.append(f"গ্রাম: {row['গ্রাম']}")
+            if "পোস্ট" in df.columns: addr.append(f"পোস্ট: {row['পোস্ট']}")
+            if "উপজেলা" in df.columns: addr.append(f"উপজেলা: {row['উপজেলা']}")
+            if "জেলা" in df.columns: addr.append(f"জেলা: {row['জেলা']}")
+            if addr: parts.append(" | ".join(addr))
+            if "মোবাইল" in df.columns: parts.append(f"মোবাইল: {row['মোবাইল']}")
+            return " | ".join([p for p in parts if p.strip()])
+
+        for i, row in df.iterrows():
+            cells = table.add_row().cells
+            cells[0].text = str(i + 1)
+            cells[1].text = build_info(row)
+            cells[2].text = row.get("গবেষণা শিরোনাম", "")
+
+        output = io.BytesIO()
+        doc.save(output)
+        output.seek(0)
+
+        response = HttpResponse(
+            output.read(),
+            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+        response["Content-Disposition"] = 'attachment; filename="applicants.docx"'
+        return response
+
+    except Exception as e:
+        return HttpResponse(f"Failed: {e}", status=500)
+    
+
 
 
 def create_exam_routine(request):
@@ -155,18 +244,6 @@ def generate_exam_bill_notesheet(request):
             print("Course Rows Data: ", data.get("courses", []))
             courses=data.get("courses", [])
             for row in courses:
-                # head_examiner = Teacher.objects.get(id=row.get("head_examiner"))
-
-                # _envisilators = []
-                # for inv_id in row.get("envisilators", []):
-                #     inv_teacher = Teacher.objects.get(id=inv_id)
-                #     _envisilators.append(inv_teacher.full_name_ansi)
-
-                # _assistants = []
-                # for assis_id in row.get("assistants", []):
-                #     assistant = Officers.objects.get(id=assis_id)
-                #     _assistants.append(assistant.full_name_ansi)
-
                 exam_date_obj = datetime.strptime(row["exam_date"], "%Y-%m-%d")
                 formatted_date = exam_date_obj.strftime("%d/%m/%Y")
                 bangla_days = ['†mvgevi', 'g½jevi', 'eyaevi', 'e„n¯úwZevi', 'ïµevi', 'kwbevi', 'iweevi']
@@ -178,7 +255,6 @@ def generate_exam_bill_notesheet(request):
                     "exam_day": bangla_day,
                     "exam_session": row['exam_session'],
                     "head_examiner": row['head_examiner'],
-                    # "envisilators": _envisilators,
                     "envisilators": row['envisilators'] or [],
                     "assistants": row['assistants'] or [],
                 })
