@@ -349,9 +349,14 @@
         }
 
         .result-actions {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             animation: fadeInUp 0.5s ease 0.3s both;
+        }
+
+        .result-actions .close-btn {
+            grid-column: 1 / -1;
         }
 
         @keyframes fadeInUp {
@@ -393,6 +398,18 @@
 
         .copy-btn.copied {
             background: #27ae60;
+        }
+
+        .copy-btn.number-btn {
+            background: #27ae60;
+        }
+
+        .copy-btn.number-btn:hover {
+            background: #229954;
+        }
+
+        .copy-btn.number-btn.copied {
+            background: #16a085;
         }
 
         .close-btn {
@@ -444,7 +461,7 @@
             margin-top: auto;
         }
 
-        @media (max-width: 768px) {
+            @media (max-width: 768px) {
             .container {
                 margin: 20px auto;
             }
@@ -468,7 +485,7 @@
             }
 
             .result-actions {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
 
             .result-card {
@@ -512,6 +529,17 @@
                     </div>
                 </div>
 
+                <div class="input-group">
+                    <label>Number Display Format</label>
+                    <div class="segmented-control">
+                        <button class="active" data-number-format="plain" onclick="selectNumberFormat('plain')">9999</button>
+                        <button data-number-format="comma" onclick="selectNumberFormat('comma')">9,999</button>
+                        <button data-number-format="comma-slash" onclick="selectNumberFormat('comma-slash')">9,999/-</button>
+                        <button data-number-format="slash" onclick="selectNumberFormat('slash')">9999/-</button>
+                        <button data-number-format="taka" onclick="selectNumberFormat('taka')">৳9,999</button>
+                    </div>
+                </div>
+
                 <button class="convert-btn" onclick="convertNumber()">Convert to Words</button>
 
                 <button class="clear-btn" onclick="clearForm()">
@@ -532,6 +560,9 @@
                     </div>
 
                     <div class="result-content">
+                        <div class="result-label">Original Number</div>
+                        <div class="result-text" id="resultNumber" style="font-size: 28px; font-weight: 600; color: #3498db; margin-bottom: 20px;"></div>
+                        
                         <div class="result-label" id="resultLabel">Bangla Unicode</div>
                         <div class="result-text" id="resultText"></div>
                     </div>
@@ -539,7 +570,11 @@
                     <div class="result-actions">
                         <button class="copy-btn" onclick="copyResult()">
                             <span id="copyIcon">📋</span>
-                            <span id="copyText">Copy Result</span>
+                            <span id="copyText">Copy Words</span>
+                        </button>
+                        <button class="copy-btn" onclick="copyNumber()" style="background: #27ae60;">
+                            <span id="copyNumberIcon">🔢</span>
+                            <span id="copyNumberText">Copy Number</span>
                         </button>
                         <button class="close-btn" onclick="closePopup()">
                             <span>✓</span>
@@ -558,19 +593,39 @@
     <script>
         // State management with localStorage persistence
         let currentFormat = 'bangla-unicode';
+        let currentNumberFormat = 'plain';
+        let currentNumberLang = 'english';
         let lastResult = '';
+        let lastNumber = '';
+
+        // Bangla digit mappings
+        const banglaUnicodeDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+        const banglaAnsiDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
         // Initialize: Load saved format from localStorage on page load
         window.addEventListener('DOMContentLoaded', function() {
             const savedFormat = localStorage.getItem('numberConverterFormat');
+            const savedNumberFormat = localStorage.getItem('numberDisplayFormat');
+            const savedNumberLang = localStorage.getItem('numberLanguage');
+            
             if (savedFormat) {
                 currentFormat = savedFormat;
                 updateActiveButton(currentFormat);
             }
+            
+            if (savedNumberFormat) {
+                currentNumberFormat = savedNumberFormat;
+                updateActiveNumberFormatButton(currentNumberFormat);
+            }
+            
+            if (savedNumberLang) {
+                currentNumberLang = savedNumberLang;
+                updateActiveNumberLangButton(savedNumberLang);
+            }
         });
 
         function updateActiveButton(format) {
-            document.querySelectorAll('.segmented-control button').forEach(btn => {
+            document.querySelectorAll('.segmented-control button[data-format]').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.format === format) {
                     btn.classList.add('active');
@@ -578,10 +633,244 @@
             });
         }
 
+        function updateActiveNumberFormatButton(format) {
+            document.querySelectorAll('.segmented-control button[data-number-format]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.numberFormat === format) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function updateActiveNumberLangButton(lang) {
+            document.querySelectorAll('.segmented-control button[data-number-lang]').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.numberLang === lang) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
         function saveFormat(format) {
             currentFormat = format;
-            // Save to localStorage for persistence
             localStorage.setItem('numberConverterFormat', format);
+        }
+
+        function selectNumberFormat(format) {
+            currentNumberFormat = format;
+            localStorage.setItem('numberDisplayFormat', format);
+            updateActiveNumberFormatButton(format);
+            
+            // Update display if result is showing
+            if (lastNumber) {
+                document.getElementById('resultNumber').textContent = formatNumber(lastNumber);
+            }
+        }
+
+        function selectNumberLang(lang) {
+            currentNumberLang = lang;
+            localStorage.setItem('numberLanguage', lang);
+            updateActiveNumberLangButton(lang);
+            
+            // Update display if result is showing
+            if (lastNumber) {
+                const resultNumElement = document.getElementById('resultNumber');
+                resultNumElement.textContent = formatNumber(lastNumber);
+                
+                // Apply SutonnyMJ font for Bangla ANSI numbers
+                if (lang === 'bangla-ansi') {
+                    resultNumElement.style.fontFamily = "'SutonnyMJ', 'Roboto', sans-serif";
+                } else {
+                    resultNumElement.style.fontFamily = "'Roboto', sans-serif";
+                }
+            }
+        }
+
+        function convertToNumberLang(numStr) {
+            if (currentNumberLang === 'english') {
+                return numStr;
+            }
+            
+            const digits = currentNumberLang === 'bangla-unicode' ? banglaUnicodeDigits : banglaAnsiDigits;
+            let result = '';
+            
+            for (let char of numStr) {
+                if (char >= '0' && char <= '9') {
+                    result += digits[parseInt(char)];
+                } else {
+                    result += char;
+                }
+            }
+            
+            return result;
+        }
+
+        function formatNumber(num) {
+            const numStr = num.toString();
+            let formatted = '';
+            
+            switch(currentNumberFormat) {
+                case 'plain':
+                    formatted = numStr;
+                    break;
+                
+                case 'comma':
+                    const parts = numStr.split('.');
+                    let intPart = parts[0];
+                    const decPart = parts[1] ? '.' + parts[1] : '';
+                    
+                    let lastThree = intPart.substring(intPart.length - 3);
+                    let otherNumbers = intPart.substring(0, intPart.length - 3);
+                    
+                    if (otherNumbers !== '') {
+                        lastThree = ', ' + lastThree;
+                    }
+                    
+                    let result = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ', ') + lastThree;
+                    formatted = result + decPart;
+                    break;
+                
+                case 'slash':
+                    formatted = numStr + '/-';
+                    break;
+                
+                case 'taka':
+                    const commaParts = numStr.split('.');
+                    let commaIntPart = commaParts[0];
+                    const commaDecPart = commaParts[1] ? '.' + commaParts[1] : '';
+                    
+                    let lastThreeComma = commaIntPart.substring(commaIntPart.length - 3);
+                    let otherNumbersComma = commaIntPart.substring(0, commaIntPart.length - 3);
+                    
+                    if (otherNumbersComma !== '') {
+                        lastThreeComma = ', ' + lastThreeComma;
+                    }
+                    
+                    let commaResult = otherNumbersComma.replace(/\B(?=(\d{2})+(?!\d))/g, ', ') + lastThreeComma;
+                    formatted = '৳' + commaResult + commaDecPart;
+                    break;
+                
+                default:
+                    formatted = numStr;
+            }
+            
+            // Convert to selected number language
+            return convertToNumberLang(formatted);
+        }
+
+        // Number formatting and display functions
+        function convertToNumberLang(numStr) {
+            // ANSI uses English digits with SutonnyMJ font, so no conversion needed
+            if (currentFormat === 'english' || currentFormat === 'bangla-ansi') {
+                return numStr;
+            }
+            
+            // Only Unicode needs digit conversion
+            const digits = banglaUnicodeDigits;
+            let result = '';
+            
+            for (let char of numStr) {
+                if (char >= '0' && char <= '9') {
+                    result += digits[parseInt(char)];
+                } else {
+                    result += char;
+                }
+            }
+            
+            return result;
+        }
+
+        function formatNumber(num) {
+            const numStr = num.toString();
+            let formatted = '';
+            
+            switch(currentNumberFormat) {
+                case 'plain':
+                    formatted = numStr;
+                    break;
+                
+                case 'comma':
+                    const parts = numStr.split('.');
+                    let intPart = parts[0];
+                    const decPart = parts[1] ? '.' + parts[1] : '';
+                    
+                    let lastThree = intPart.substring(intPart.length - 3);
+                    let otherNumbers = intPart.substring(0, intPart.length - 3);
+                    
+                    if (otherNumbers !== '') {
+                        lastThree = ',' + lastThree;
+                    }
+                    
+                    let result = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + lastThree;
+                    formatted = result + decPart;
+                    break;
+                
+                case 'comma-slash':
+                    const commaSlashParts = numStr.split('.');
+                    let commaSlashIntPart = commaSlashParts[0];
+                    
+                    let commaSlashLastThree = commaSlashIntPart.substring(commaSlashIntPart.length - 3);
+                    let commaSlashOtherNumbers = commaSlashIntPart.substring(0, commaSlashIntPart.length - 3);
+                    
+                    if (commaSlashOtherNumbers !== '') {
+                        commaSlashLastThree = ',' + commaSlashLastThree;
+                    }
+                    
+                    let commaSlashResult = commaSlashOtherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + commaSlashLastThree;
+                    formatted = commaSlashResult + '/-';
+                    break;
+                
+                case 'slash':
+                    formatted = numStr + '/-';
+                    break;
+                
+                case 'taka':
+                    const commaParts = numStr.split('.');
+                    let commaIntPart = commaParts[0];
+                    const commaDecPart = commaParts[1] ? '.' + commaParts[1] : '';
+                    
+                    let lastThreeComma = commaIntPart.substring(commaIntPart.length - 3);
+                    let otherNumbersComma = commaIntPart.substring(0, commaIntPart.length - 3);
+                    
+                    if (otherNumbersComma !== '') {
+                        lastThreeComma = ',' + lastThreeComma;
+                    }
+                    
+                    let commaResult = otherNumbersComma.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + lastThreeComma;
+                    formatted = '৳' + commaResult + commaDecPart;
+                    break;
+                
+                default:
+                    formatted = numStr;
+            }
+            
+            // Convert to selected output format language
+            return convertToNumberLang(formatted);
+        }
+
+        function selectNumberFormat(format) {
+            currentNumberFormat = format;
+            localStorage.setItem('numberDisplayFormat', format);
+            updateActiveNumberFormatButton(format);
+            
+            // Update display if result is showing
+            if (lastNumber) {
+                updateNumberDisplay();
+            }
+        }
+
+        function updateNumberDisplay() {
+            if (!lastNumber) return;
+            
+            const resultNumElement = document.getElementById('resultNumber');
+            resultNumElement.textContent = formatNumber(lastNumber);
+            
+            // Apply SutonnyMJ font for Bangla ANSI numbers
+            if (currentFormat === 'bangla-ansi') {
+                resultNumElement.style.fontFamily = "'SutonnyMJ', 'Roboto', sans-serif";
+            } else {
+                resultNumElement.style.fontFamily = "'Roboto', sans-serif";
+            }
         }
 
         // Bangla ANSI conversion tables (matching VBA code exactly)
@@ -619,6 +908,17 @@
             95: 'cuPvbeŸB', 96: 'wQqvbeŸB', 97: 'mvZvbeŸB', 98: 'AvUvbeŸB', 99: 'wbivbeŸB'
         };
 
+        // Segmented control handler
+        document.querySelectorAll('.segmented-control button[data-format]').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.segmented-control button[data-format]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+                saveFormat(this.dataset.format);
+            });
+        });
+
         // Bangla Unicode conversion tables
         const banglaUnicodeMap = {
             1: 'এক', 2: 'দুই', 3: 'তিন', 4: 'চার', 5: 'পাঁচ',
@@ -653,9 +953,9 @@
         };
 
         // Segmented control handler
-        document.querySelectorAll('.segmented-control button').forEach(button => {
+        document.querySelectorAll('.segmented-control button[data-format]').forEach(button => {
             button.addEventListener('click', function() {
-                document.querySelectorAll('.segmented-control button').forEach(btn => {
+                document.querySelectorAll('.segmented-control button[data-format]').forEach(btn => {
                     btn.classList.remove('active');
                 });
                 this.classList.add('active');
@@ -1004,8 +1304,13 @@
 
         function displayResult(result) {
             lastResult = result;
+            lastNumber = document.getElementById('numberInput').value.trim();
+            
             const resultTextElement = document.getElementById('resultText');
             resultTextElement.textContent = result;
+            
+            // Display formatted number
+            updateNumberDisplay();
             
             // Apply SutonnyMJ font for Bangla ANSI
             if (currentFormat === 'bangla-ansi') {
@@ -1028,7 +1333,15 @@
             const copyBtn = document.querySelector('.copy-btn');
             copyBtn.classList.remove('copied');
             document.getElementById('copyIcon').textContent = '📋';
-            document.getElementById('copyText').textContent = 'Copy Result';
+            document.getElementById('copyText').textContent = 'Copy Words';
+            
+            // Reset copy number button
+            const copyNumBtn = document.querySelectorAll('.copy-btn')[1];
+            if (copyNumBtn) {
+                copyNumBtn.classList.remove('copied');
+                document.getElementById('copyNumberIcon').textContent = '🔢';
+                document.getElementById('copyNumberText').textContent = 'Copy Number';
+            }
         }
 
         function closePopup() {
@@ -1059,7 +1372,25 @@
                 setTimeout(() => {
                     copyBtn.classList.remove('copied');
                     document.getElementById('copyIcon').textContent = '📋';
-                    document.getElementById('copyText').textContent = 'Copy Result';
+                    document.getElementById('copyText').textContent = 'Copy Words';
+                }, 2000);
+            }).catch(err => {
+                showError('Failed to copy to clipboard');
+            });
+        }
+
+        function copyNumber() {
+            const formattedNum = formatNumber(lastNumber);
+            navigator.clipboard.writeText(formattedNum).then(() => {
+                const copyNumBtn = document.querySelectorAll('.copy-btn')[1];
+                copyNumBtn.classList.add('copied');
+                document.getElementById('copyNumberIcon').textContent = '✅';
+                document.getElementById('copyNumberText').textContent = 'Copied!';
+
+                setTimeout(() => {
+                    copyNumBtn.classList.remove('copied');
+                    document.getElementById('copyNumberIcon').textContent = '🔢';
+                    document.getElementById('copyNumberText').textContent = 'Copy Number';
                 }, 2000);
             }).catch(err => {
                 showError('Failed to copy to clipboard');
