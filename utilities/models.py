@@ -11,3 +11,15 @@ class PDFUpload(models.Model):
 
     def __str__(self):
         return f"PDF uploaded at {self.uploaded_at}"
+    
+
+# Testing Parler for multilingual support
+from parler.models import TranslatableModel, TranslatedFields
+class MultilingualExample(TranslatableModel):
+    translations = TranslatedFields(
+        title=models.CharField(max_length=200),
+        description=models.TextField()
+    )
+
+    def __str__(self):
+        return self.title

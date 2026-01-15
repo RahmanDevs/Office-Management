@@ -1,0 +1,16 @@
+@font-face {
+    font-family: 'SutonnyMJ';
+    src: url('/static/fonts/SutonnyMJ.ttf') format('truetype');
+}
+
+#id_full_name_ansi {
+    font-family: 'SutonnyMJ' !important;
+    font-size: 16px !important;
+    color: dodgerblue;
+}
+
+#id_title_ansi {
+    font-family: 'SutonnyMJ' !important;
+    font-size: 16px !important;
+    color: dodgerblue;
+}

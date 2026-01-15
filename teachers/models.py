@@ -43,6 +43,7 @@ class Department(models.Model):
 
 
 class Teacher(models.Model):
+    
     DESIGNATION_CHOICES = [
         ('professor', 'Professor'),
         ('associate_professor', 'Associate Professor'),

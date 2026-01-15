@@ -20,12 +20,19 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
+    # Django default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Third party apps
+    'nested_admin',
+    'parler',
+    
+    # installed apps
     'channels',
     'teachers',
     'academic',
@@ -33,6 +40,27 @@ INSTALLED_APPS = [
     'utilities'
 
 ]
+
+
+
+LANGUAGES = [
+    ("en", "English"),
+    ("ar", "Arabic"),
+    ("uni", "Unicode"),
+]
+
+PARLER_LANGUAGES = {
+    None: (
+        {"code": "en"},
+        {"code": "ar"},
+        {"code": "uni"},
+    ),
+    "default": {
+        "fallback": "en",
+        "hide_untranslated": False,
+    }
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

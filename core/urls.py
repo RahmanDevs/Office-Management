@@ -21,6 +21,8 @@ from django.conf.urls.static import static
 from utilities import views as utilities_views
 urlpatterns = [
     path('', utilities_views.dev_urls, name='dev_urls'),
+    path('grappelli/', include('grappelli.urls')), # grappelli URLS
+    path('_nested_admin/', include('nested_admin.urls')),
     path('admin/', admin.site.urls),
     path('teachers/', include('teachers.urls')),
     path('exams/', include('exams.urls')),

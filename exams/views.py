@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from docxtpl import DocxTemplate
 from teachers.models import Teacher, Officers
+from academic.models import ExamCommittee, DepartmentDetails, Syllabus
 import uuid
 from datetime import date, datetime
 from django.views.decorators.csrf import csrf_exempt
@@ -110,9 +111,9 @@ def create_exam_routine(request):
     }
     return render(request, 'exams/exam_routine.html', context)
 
-# make exam routine 
-def exam_routine(request):
-    return render(request, 'exams/exam_routine.html')
+# # make exam routine 
+# def exam_routine(request):
+#     return render(request, 'exams/exam_routine.html')
 
 
 # from django.shortcuts import render
@@ -159,6 +160,70 @@ def generate_bill_details(request):
         response['Content-Disposition'] = f'attachment; filename={file_name}'
         return response
 
+
+@csrf_exempt  
+def generate_exam_routine_docx(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            # Basic fields
+            program = data.get("program")
+            semester = data.get("semester")
+            exam_year = data.get("exam_year")
+            admission_session = data.get("admission_session")
+            exam_type = data.get("exam_type")
+            chair_exam_committee = Teacher.objects.get(id=data.get("chair_exam_committee"))
+            courses=data.get("courses", [])
+            course_rows = []
+            for row in courses:
+                exam_date_obj = datetime.strptime(row["exam_date"], "%Y-%m-%d")
+                formatted_date = exam_date_obj.strftime("%d/%m/%Y")
+                bangla_days = ['†mvgevi', 'g½jevi', 'eyaevi', 'e„n¯úwZevi', 'ïµevi', 'kwbevi', 'iweevi']
+                bangla_day = bangla_days[exam_date_obj.weekday()]
+                course_rows.append({
+                    "course_code": row['course_code'],
+                    "exam_date": formatted_date,
+                    "exam_day": bangla_day,
+                    "exam_session": row['exam_session'],
+
+
+                })
+            # Template and context
+            template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Routine.docx')
+            doc = DocxTemplate(template_path)
+            context = {
+                'program': program,
+                'semester': semester,
+                'course_rows': course_rows,
+                'chair_exam_committee': chair_exam_committee.full_name_ansi,
+                'exam_year': exam_year,
+                'exam_type': exam_type,
+                'admission_session': admission_session
+            }
+            # Render and save the document
+            doc.render(context)
+            file_name = f"generated_{uuid.uuid4()}.docx"
+            output_path = os.path.join(settings.MEDIA_ROOT, file_name)
+            doc.save(output_path)
+            # Return the file
+            with open(output_path, 'rb') as fh:
+                response = HttpResponse(
+                    fh.read(),
+                    content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                )
+                response['Content-Disposition'] = f'attachment; filename={file_name}'
+                return response
+            # return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    else:
+        # For GET requests, render the page
+        context = {
+            'teachers': Teacher.objects.all(),
+            'officers': Officers.objects.all()
+        }
+        return render(request, 'exams/exam_routine.html', context=context)
 @csrf_exempt  
 def generate_duty_roster_docx(request):
     if request.method == "POST":

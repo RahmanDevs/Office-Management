@@ -1,12 +1,34 @@
 from django.contrib import admin
 from teachers.models import Teacher,ExternalTeacher, University, Department, Officers
 # Register your models here.
+# admin.py
+from django import forms
+from django.contrib import admin
+
+
+# class TeacherAdminForm(forms.ModelForm):
+#     class Meta:
+#         model = Teacher
+#         fields = "__all__"
+#         widgets = {
+#             'full_name_ansi': forms.Textarea(attrs={
+#                 'style': "font-family: 'SutonnyMJ'; font-size:16px;",
+#                 'rows': 1,
+#             })
+#         }
+
+
 
 class TeacherAdmin(admin.ModelAdmin):
+    # form = TeacherAdminForm
     list_display = ('full_name_en', 'full_name_uni', 'full_name_ar', 'designation', 'email', 'phone_number')
     search_fields = ('full_name_uni', 'full_name_ansi', 'full_name_en', 'full_name_ar', 'designation', 'email')
     list_filter = ('designation',)
     ordering = ('joining_date',)
+    class Media:
+        css = {
+            'all': ('admin/css/sutonny_admin.css',)
+        }
 
 admin.site.register(Teacher, TeacherAdmin)
 class ExternalTeacherAdmin(admin.ModelAdmin):
@@ -37,3 +59,7 @@ class OfficerAdmin(admin.ModelAdmin):
     search_fields = ('full_name_uni', 'full_name_ansi', 'full_name_en', 'full_name_ar', 'designation', 'email')
     list_filter = ('designation',)
     ordering = ('joining_date',)
+    class Media:
+        css = {
+            'all': ('admin/css/sutonny_admin.css',)
+        }
