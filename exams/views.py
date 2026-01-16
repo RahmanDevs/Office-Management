@@ -1,11 +1,10 @@
 import os
 from django.shortcuts import render
-from academic.models import ExamCommittee
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from docxtpl import DocxTemplate
 from teachers.models import Teacher, Officers
-from academic.models import ExamCommittee, DepartmentDetails, Syllabus
+from academic.models import ExamCommittee,AcademicYear, Course
 import uuid
 from datetime import date, datetime
 from django.views.decorators.csrf import csrf_exempt
@@ -163,6 +162,7 @@ def generate_bill_details(request):
 
 @csrf_exempt  
 def generate_exam_routine_docx(request):
+
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -283,7 +283,10 @@ def generate_duty_roster_docx(request):
         # For GET requests, render the page
         context = {
             'teachers': Teacher.objects.all(),
-            'officers': Officers.objects.all()
+            'officers': Officers.objects.all(),
+            'academic_years': AcademicYear.objects.all(),
+            #get semisters from .models SEMESTER_CHOICES 
+            'semesters': [choice[0] for choice in Course._meta.get_field('semester').choices]
         }
         return render(request, 'exams/duty_roster.html', context=context)
 @csrf_exempt  

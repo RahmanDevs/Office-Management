@@ -3,7 +3,7 @@
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
-from pandas import options
+
 
 from teachers.models import Officers
 

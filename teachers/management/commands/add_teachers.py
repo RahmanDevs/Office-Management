@@ -12,6 +12,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. A.B.M. Saiful Islam Siddiqi',
         'full_name_uni': 'ড. আ.ব.ম. সাইফুল ইসলাম সিদ্দিকী',
         'full_name_ansi': 'W. Av.e.g. mvBdzj Bmjvg wmwÏKx',
+        'short_name_en':"SI",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003121380',
         'email': 'drsaif.siddiqi@gmail.com',
@@ -24,6 +25,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. A.B.M. Faruq',
         'full_name_uni': 'ড. এ.বি.এম. ফারুক',
         'full_name_ansi': 'W. G.we.Gg. dviæK',
+        'short_name_en':"AB",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003127407',
         'email': 'abmfaruqiu@gmail.com',
@@ -36,6 +38,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. A.F.M Akbar Hossain',
         'full_name_uni': 'ড. আ.ফ.ম. আকবর হোসাইন',
         'full_name_ansi': 'W. Av.d.g. AvKei †nvmvBb',
+        'short_name_en':"AH",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003105264',
         'email': 'alquraniukbd@gmail.com',
@@ -48,6 +51,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. Hafez A.N.M Ershad Ullah',
         'full_name_uni': 'ড. হাফেজ আবু নোমান মোঃ এরশাদ উল্লাহ',
         'full_name_ansi': 'W. nv‡dR Avey †bvgvb †gvt Gikv` Djøvn',
+        'short_name_en':"EU",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003112977',
         'email': 'ershadullah219@gmail.com',
@@ -60,6 +64,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. A.B.M. Siddiqur Rahman Asrafi',
         'full_name_uni': 'ড. আ.ব.ম. ছিদ্দিকুর রহমান আশ্রাফী',
         'full_name_ansi': 'W. Av.e.g. wQwÏKzi ingvb AvkÖvdx',
+        'short_name_en':"SA",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003122910',
         'email': 'asrafiiuk@gmail.com',
@@ -72,6 +77,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. Md. Loqman Husain',
         'full_name_uni': 'ড. মোহাঃ লোকমান হোসেন',
         'full_name_ansi': 'W. †gvnvt †jvKgvb †nv‡mb',
+        'short_name_en':"LH",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003127173',
         'email': 'drloqmanhusain@gmail.com',
@@ -84,6 +90,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. M. Yeaqub Ali',
         'full_name_uni': 'ড. এম. এয়াকুব আলী',
         'full_name_ansi': 'W. Gg. GqvKze Avjx',
+        'short_name_en':"YA",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003121133',
         'email': 'dryeaqubiuk@gmail.com',
@@ -96,6 +103,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. Md. Nasir Uddin Mizy',
         'full_name_uni': 'ড. মোঃ নাছির উদ্দিন মিঝি',
         'full_name_ansi': 'W. †gvt bvwQi DwÏb wgwS',
+        'short_name_en':"NU",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003112636',
         'email': 'mizy1969@gmail.com',
@@ -108,6 +116,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. Md. Jalal Uddin',
         'full_name_uni': 'ড. মোহাঃ জালাল উদ্দীন',
         'full_name_ansi': 'W. †gvnvt Rvjvj DÏxb',
+        'short_name_en':"JU",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003119258',
         'email': 'pdrjalal@gmail.com',
@@ -120,6 +129,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. Muhammad Golam Rabbani',
         'full_name_uni': 'ড. মুহাম্মদ গোলাম রব্বানী',
         'full_name_ansi': 'W. gynv¤§` †Mvjvg ieŸvbx',
+        'short_name_en':"GR",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003112018',
         'email': 'drgolamr74@gmail.com',
@@ -132,6 +142,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. Khan Muhammad Ylias',
         'full_name_uni': 'ড. খান মুহাম্মদ ইলিয়াস',
         'full_name_ansi': 'W. Lvb gynv¤§` Bwjqvm',
+        'short_name_en':"KY",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003112147',
         'email': 'yliasiuk@gmail.com',
@@ -144,6 +155,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. Md. Aminul Islam',
         'full_name_uni': 'ড. মোঃ আমিনুল ইসলাম',
         'full_name_ansi': 'W. †gvt Avwgbyj Bmjvg',
+        'short_name_en':"AI",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003119267',
         'email': 'aminiuk@gmail.com',
@@ -156,6 +168,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. Sheikh A.B.M Zakir Hossain',
         'full_name_uni': 'ড. শেখ এ.বি.এম. জাকির হোসেন',
         'full_name_ansi': 'W. †kL G.we.Gg. RvwKi †nv‡mb',
+        'short_name_en':"ZH",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003119795',
         'email': 'zakiriuk73@gmail.com',
@@ -168,6 +181,7 @@ TEACHER_DATA = [
         'full_name_en': 'Dr. A.K.M. Rasheduzzaman',
         'full_name_uni': 'ড. এ.কে.এম. রাশেদুজ্জামান',
         'full_name_ansi': 'W. G.†K.Gg. iv‡k`y¾vgvb',
+        'short_name_en':"RZ",
         'designation': 'অধ্যাপক',
         'bank_account_number': '0200003127576',
         'email': 'rashedzamaniu@gmail.com',
@@ -180,23 +194,16 @@ TEACHER_DATA = [
 
 
 class Command(BaseCommand):
-    """Django management command to add teachers to the database."""
-
-    help = 'Populate the Teacher model with data'
-
+    """Django management command to add officers to the database."""
+    help = 'Populate the Officers model with data'
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--reset',
-            action='store_true',
-            help='If provided, delete existing teachers before adding new ones',
-        )
-
-    def handle(self, *args, **kwargs):
-        if kwargs.get('reset'):
+        parser.add_argument('--reset',action='store_true',help='Delete existing officers before loading new data.',)
+    
+    def handle(self, *args, **options):
+        if options.get('reset'):
             Teacher.objects.all().delete()
             self.stdout.write(self.style.WARNING('Deleted existing teachers'))
 
-        """Handle the command execution."""
         for data in TEACHER_DATA:
             teacher, created = Teacher.objects.get_or_create(
                 full_name_en=data.get('full_name_en'),
@@ -209,6 +216,7 @@ class Command(BaseCommand):
                 tin_number=data.get('tin_number'),
                 data_of_birth=datetime.strptime(data.get('data_of_birth'), '%Y-%m-%d').date(),
                 profile_picture=data.get('profile_picture'),
+                short_name_en=data.get('short_name_en'),
             )
             if created:
                 self.stdout.write(

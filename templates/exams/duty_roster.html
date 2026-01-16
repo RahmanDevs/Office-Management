@@ -69,6 +69,10 @@
     .select2-container {
       width: 100% !important;
     }
+    .select2-results__options {
+    max-height: 400px !important;   /* increase this */
+    overflow-y: auto !important;
+}
 
     button {
       margin-top: 20px;
@@ -152,36 +156,30 @@
 <form id="roster-form" onsubmit="event.preventDefault(); submitForm();">
   <div class="row">
     <div class="form-group">
+      <label>Exam Year</label>
+      <select name="exam_year" required>
+        <option value="">--Select Year--</option>
+        {% for year in academic_years %}
+          <option value="{{ year.year }}">{{ year.year }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
       <label>Program</label>
       <select name="program" required>
         <option value="">--Select Program--</option>
-        <option value="BTIS">BTIS</option>
-        <option value="MTIS">MTIS</option>
       </select>
     </div>
     <div class="form-group">
       <label>Semester</label>
       <select name="semester" required>
         <option value="">--Select Semester--</option>
-        <option value="1st">1st</option>
-        <option value="2nd">2nd</option>
-        <option value="3rd">3rd</option>
-        <option value="4th">4th</option>
-        <option value="5th">5th</option>
-        <option value="6th">6th</option>
-        <option value="7th">7th</option>
-        <option value="8th">8th</option>
+        {% for sem in semesters %}
+          <option value="{{ sem }}">{{ sem }}</option>
+        {% endfor %}
       </select>
     </div>
-    <div class="form-group">
-      <label>Exam Year</label>
-      <select name="exam_year" required>
-        <option value="">--Select Year--</option>
-        <option value="2024">2024</option>
-        <option value="2025">2025</option>
-        <option value="2026">2026</option>
-      </select>
-    </div>
+
     <div class="form-group">
       <label>Exam Type</label>
       <select name="exam_type" required>
@@ -278,6 +276,55 @@
 
 <script>
 
+// Get Programs based on Academic Year
+document.querySelector('select[name="exam_year"]').addEventListener('change', function() {
+    const academic_year = this.value;
+    const programSelect = document.querySelector('select[name="program"]');
+    programSelect.innerHTML = '<option value="">--Select Program--</option>';
+
+    if (academic_year) {
+        fetch(`/academic/get_program/?academic_year=${academic_year}`)
+        .then(response => response.text())
+        .then(data => {
+            const programs = data.split(', ');
+            programs.forEach(program => {
+                const option = document.createElement('option');
+                option.value = program;
+                option.textContent = program;
+                programSelect.appendChild(option);
+            });
+        })
+        .catch(err => console.error('Error fetching programs:', err));
+    }
+});
+
+
+// get course codes from server based om Academic Year, Semester and Program values
+function updateCourseOptions(selectElem, academic_year, program, semester) {
+  console.log('Selected Element', selectElem);
+  console.log('Program:', program, 'Semester:', semester);
+  selectElem.innerHTML = '<option value="">--Select--</option>';
+  if (academic_year && program && semester) {
+      fetch(`/academic/get_yearly_courses_code/?academic_year=${academic_year}&semester=${semester}&program=${program}`)
+      .then(response => response.text())
+      .then(data => {
+          console.log('Fetched Course Codes:', data);
+          const courseCodes = data.split(', ');
+          courseCodes.forEach(code => {
+              const option = document.createElement('option');
+              option.value = code;
+              option.textContent = code;
+              selectElem.appendChild(option);
+          });
+      })
+      .catch(err => console.error('Error fetching course codes:', err));
+  }
+}
+
+
+
+
+
 const submit_exam_roster_url = document.getElementById('submit_exam_roster_url').value;
 
 
@@ -307,6 +354,7 @@ function initializeSelect2(context) {
   });
 }
 
+/*
 function updateCourseOptions(selectElem, program, semester) {
   selectElem.innerHTML = '<option value="">--Select--</option>';
   const courses = coursesByProgramSemester[program]?.[semester] || [];
@@ -317,6 +365,7 @@ function updateCourseOptions(selectElem, program, semester) {
     selectElem.appendChild(option);
   });
 }
+*/
 
 function addCourseRow() {
   const container = document.getElementById('courses');
@@ -329,8 +378,9 @@ function addCourseRow() {
 
   const program = document.querySelector('select[name="program"]').value;
   const semester = document.querySelector('select[name="semester"]').value;
+  const academic_year = document.querySelector('select[name="exam_year"]').value;
   const courseSelect = lastRow.querySelector('select[name="course_code"]');
-  updateCourseOptions(courseSelect, program, semester);
+  updateCourseOptions(courseSelect, academic_year, program, semester);
 }
 
 function removeCourseRow(button) {
@@ -340,9 +390,10 @@ function removeCourseRow(button) {
 function updateAllCourseCodes() {
   const program = document.querySelector('select[name="program"]').value;
   const semester = document.querySelector('select[name="semester"]').value;
+  const academic_year = document.querySelector('select[name="exam_year"]').value;
 
   document.querySelectorAll('select[name="course_code"]').forEach(selectElem => {
-    updateCourseOptions(selectElem, program, semester);
+    updateCourseOptions(selectElem, academic_year, program, semester);
   });
 }
 

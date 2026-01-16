@@ -6,9 +6,31 @@ from docxtpl import DocxTemplate
 import os
 import uuid
 from datetime import date
-from .models import ExamCommittee
+from .models import ExamCommittee, Program
+from .models import Course
 # Create your views here.
 
+def get_yearly_courses_code(request):
+    if request.method == 'GET':
+        academic_year = request.GET.get('academic_year', None)
+        semester = request.GET.get('semester', None)
+        program= request.GET.get('program', None)
+        if academic_year and semester and program:
+            courses = Course.objects.filter(
+                syllabus__program__academic_year__year=academic_year,
+                semester=semester,
+                syllabus__program__title_en=program
+            )
+            course_codes = [course.course_code for course in courses]
+            return HttpResponse(', '.join(course_codes))
+
+def get_program(request):
+    if request.method == 'GET':
+        academic_year = request.GET.get('academic_year', None)
+        if academic_year:
+            programs = Program.objects.filter(academic_year__year=academic_year)
+            program_titles = [program.title_en for program in programs]
+            return HttpResponse(', '.join(program_titles))
 
 def generate_bill_details(request):
     # Load the template

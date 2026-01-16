@@ -72,6 +72,9 @@ class Program(models.Model):
 
     def __str__(self):
         return f"{self.title_en}:{self.level}-{self.academic_year}"
+    # Order by admission session descending
+    class Meta:
+        ordering = ['-admission_session']
 class Syllabus(models.Model):
     title=models.CharField(max_length=255, blank=True, null=True)
     program=models.ForeignKey(Program, on_delete=models.CASCADE, related_name='syllabus', blank=True, null=True)
