@@ -22,6 +22,12 @@ from docx import Document
 from docx.shared import Pt
 from docx.oxml.ns import qn
 
+
+    
+    
+
+    
+
 def google_sheet_docx_page(request):
     # just render the page with input box & button
     return render(request, "exams/google_sheet_docx.html")

@@ -123,23 +123,63 @@ class ExamCommittee(models.Model):
 
     def __str__(self):
         return f"{self.title_uni}"
+
+
+ROLE_LANG = {
+    'chairman': {
+        'en': 'Chairman',
+        'bn': 'চেয়ারম্যান',
+        'ar': 'رئيس اللجنة',
+    },
+    'member': {
+        'en': 'Member',
+        'bn': 'মেম্বার',
+        'ar': 'عضو',
+    },
+    'external_member': {
+        'en': 'External Member',
+        'bn': 'বাইরের মেম্বার',
+        'ar': 'عضو خارجي',
+    },
+    'coordinator': {
+        'en': 'Coordinator',
+        'bn': 'কোর্ডিনেটর',
+        'ar': 'منسق',
+    },
+}
+
+
+class Role(models.TextChoices):
+        CHAIRMAN = ('chairman', 'Chairman')
+        MEMBER = ('member', 'Member')
+        EXTERNAL_MEMBER = ('external_member', 'External Member')
+        COORDINATOR = ('coordinator', 'Coordinator')
+
+
 class ExamCommitteeMember(models.Model):
 
-    COMMITTEE_ROLE_CHOICES = [
-        ("chairman", "Chairman"),
-        ("member", "Member"),
-        ("external_member", "External Member"),
-        ("coordinator", "Coordinator"),
-    ]
     committee = models.ForeignKey(ExamCommittee, on_delete=models.CASCADE, related_name='members')
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='committee_memberships')
-    role = models.CharField(max_length=20, choices=COMMITTEE_ROLE_CHOICES)
+    role = models.CharField(max_length=20, choices=Role.choices)
     rank = models.PositiveSmallIntegerField(
         help_text="Lower number = higher priority"
     )
 
     def __str__(self):
         return f"{self.teacher} - {self.role} in {self.committee}"
+    def get_role(self, lang='en'):
+        """
+        Safely return language version.
+        Example: obj.get_role('bn') → 'চেয়ারম্যান'
+
+        Template Usage
+        {{ member.get_role:'en' }}
+        {{ member.get_role:'bn' }}
+        {{ member.get_role:'ar' }}
+
+        """
+        return ROLE_LANG.get(self.role, {}).get(lang, self.role)
+
 
 
 class Exam(models.Model):
