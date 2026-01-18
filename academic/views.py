@@ -69,32 +69,18 @@ def generate_bill_details(request):
 def generate_exam_resulation(request):
     # Load the template
     exam_committee = ExamCommittee.objects.first()  # Get the first exam committee for demonstration
-
-
-    
+    exam_commitee_chairman = exam_committee.members.filter(role='chairman').first()
     # Define context (dynamic data)
     context = {
-
         'committee_members': ExamCommitteeMember.objects.filter(committee=exam_committee),
+        'committee_chairman': exam_commitee_chairman.teacher.full_name_ansi,
 
     }
-
     print("ok\n\n")
-
     template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')
     doc = DocxTemplate(template_path)
 
     # Render and save the document
     doc.render(context)
-    # file_name = f"generated_{uuid.uuid4()}.docx"
-    # output_path = os.path.join(settings.MEDIA_ROOT, file_name)
     doc.save('output.docx')
     return HttpResponse("Created msjdkjgsdhfg")
-    # Return the file
-    # with open(output_path, 'rb') as fh:
-    #     response = HttpResponse(
-    #         fh.read(),
-    #         content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    #     )
-    #     response['Content-Disposition'] = f'attachment; filename={file_name}'
-    #     return response

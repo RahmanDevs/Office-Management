@@ -128,22 +128,26 @@ class ExamCommittee(models.Model):
 ROLE_LANG = {
     'chairman': {
         'en': 'Chairman',
-        'bn': 'চেয়ারম্যান',
+        'bn_uni': 'সভাপতি',
+        'bn_ansi': 'mfvcwZ',
         'ar': 'رئيس اللجنة',
     },
     'member': {
         'en': 'Member',
-        'bn': 'মেম্বার',
+        'bn_uni': 'সদস্য',
+        'bn_ansi': 'm`m¨',
         'ar': 'عضو',
     },
     'external_member': {
         'en': 'External Member',
-        'bn': 'বাইরের মেম্বার',
+        'bn_uni': 'বহিস্থ সদস্য',
+        'bn_ansi': 'ewn¯’ m`m¨',
         'ar': 'عضو خارجي',
     },
     'coordinator': {
         'en': 'Coordinator',
-        'bn': 'কোর্ডিনেটর',
+        'bn_uni': 'কোর্ডিনেটর',
+        'bn_ansi': '†KvAwW©‡bUi',
         'ar': 'منسق',
     },
 }
@@ -169,14 +173,8 @@ class ExamCommitteeMember(models.Model):
         return f"{self.teacher} - {self.role} in {self.committee}"
     def get_role(self, lang='en'):
         """
-        Safely return language version.
-        Example: obj.get_role('bn') → 'চেয়ারম্যান'
-
-        Template Usage
-        {{ member.get_role:'en' }}
-        {{ member.get_role:'bn' }}
-        {{ member.get_role:'ar' }}
-
+        Example usage in docxtpl template:
+        {{ member.get_role('ar') }}
         """
         return ROLE_LANG.get(self.role, {}).get(lang, self.role)
 
