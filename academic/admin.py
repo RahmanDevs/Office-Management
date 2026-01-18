@@ -25,6 +25,19 @@ class SyllabusAdmin(nested_admin.NestedModelAdmin):
 
 
 
+@admin.register(Exam)
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ('course_code', 'date', 'time', 'chief_inspector',  )
+    search_fields = ('course__course_code', 'date')
+    list_filter = ('date', 'time')
+
+
+    # def inspectors_list(self, obj):
+    #     inspectors = obj.inspectors.all()
+    #     return format_html("<br>".join([str(inspector) for inspector in inspectors])) if inspectors else "No Inspectors"
+
+    def course_code(self, obj):
+        return obj.course.course_code if obj.course else "No Course Code"
 
 
 
