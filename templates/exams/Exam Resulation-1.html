@@ -225,6 +225,10 @@
         {% endfor %}
       </select>
     </div>
+    <div class="form-group">
+      <label>Resulation Date and Time</label>
+      <input type="datetime-local" name="resulation_date_time" required>
+    </div>
   </div>
 
   <div id="courses"></div>
@@ -322,7 +326,7 @@ function submitForm() {
     viva_date_1: form.viva_date_1.value,
     viva_date_2: form.viva_date_2.value,
     duty_roster_made_by: form.duty_roster_made_by.value,
-
+    resulation_date_time: form.resulation_date_time.value
   };
 
 
@@ -358,7 +362,7 @@ function submitForm() {
     window.URL.revokeObjectURL(url);
   })
   .catch(err => {
-    alert('Submission failed!');
+    alert('An error occurred while generating the document.');
     console.error(err);
   });
 

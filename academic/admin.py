@@ -4,40 +4,37 @@ import nested_admin
 # import InlineModelAdmin
 from django.contrib.admin import TabularInline
 from .models import (
-    ExamCommittee, Exam, Program, Syllabus, Course,AcademicYear,
+    ExamCommittee, 
+    Program, Syllabus,
+    Course,
+    AcademicYear,
+    ExamRutine,
+    Exam,
     DepartmentDetails, ExamCommitteeMember, CourseExaminer
 )
 from django.utils.html import format_html
 
+class ExamRutineInline(admin.TabularInline):
+    model = ExamRutine
+    extra = 1
+    
 
 class ExaminerInline(nested_admin.NestedTabularInline):
     model = CourseExaminer
     extra = 1
 
 class CourseInline(nested_admin.NestedStackedInline):
+
     model = Course
     inlines = [ExaminerInline]
     extra = 1
+    # add ExamRutine inline
+    inlines = [ExamRutineInline]
 
 @admin.register(Syllabus)
 class SyllabusAdmin(nested_admin.NestedModelAdmin):
     inlines = [CourseInline]
 
-
-
-@admin.register(Exam)
-class ExamAdmin(admin.ModelAdmin):
-    list_display = ('course_code', 'date', 'time', 'chief_inspector',  )
-    search_fields = ('course__course_code', 'date')
-    list_filter = ('date', 'time')
-
-
-    # def inspectors_list(self, obj):
-    #     inspectors = obj.inspectors.all()
-    #     return format_html("<br>".join([str(inspector) for inspector in inspectors])) if inspectors else "No Inspectors"
-
-    def course_code(self, obj):
-        return obj.course.course_code if obj.course else "No Course Code"
 
 
 
@@ -74,7 +71,11 @@ admin.site.register(AcademicYear, AcademicYearAdmin)
 #         return obj.syllabus.title if obj.syllabus else "No Syllabus"
 
 # admin.site.register(Course, CourseAdmin)
+admin.site.register(Exam)
 
+class ExamAdmin(admin.TabularInline):
+    model = Exam
+    extra = 1
 
 
 
@@ -83,8 +84,8 @@ class ExamCommitteeMemberAdmin(TabularInline):
     extra = 1
 @admin.register(ExamCommittee)
 class CommitteeAdmin(admin.ModelAdmin):
-    inlines = [ExamCommitteeMemberAdmin]
-    list_display = ('title_uni', 'program', 'session', 'year', 'level')
+    inlines = [ExamCommitteeMemberAdmin, ExamAdmin]
+    list_display = ('title_uni',  'session', 'year', 'level')
     search_fields = ('title_uni', )
     def program(self, obj):
         return obj.program.title_en if obj.program else "No Program"
@@ -96,6 +97,7 @@ class CommitteeAdmin(admin.ModelAdmin):
         return obj.program.level if obj.program else "No Level"
     
 
+# admin.site.register(Exam)
 # Define the role priority
 # class ExamCommitteeAdmin(admin.ModelAdmin):
 #     list_display = ('title_uni', 'program',  'member_list',)

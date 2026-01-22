@@ -6,7 +6,7 @@ from django.conf import settings
 from docxtpl import DocxTemplate
 import os
 import uuid
-from datetime import date
+from datetime import date, datetime
 
 from teachers.models import Teacher
 from .models import ExamCommittee, Program,ExamCommitteeMember, AcademicYear
@@ -88,16 +88,12 @@ def generate_bill_details(request):
 @csrf_exempt
 def generate_exam_resulation(request):
     if request.method == 'POST':
-        print("POST request received")
         import json
         data = json.loads(request.body)
         academic_year = data.get('academic_year')
         exam_committee_id = data.get('exam_committee')
         semester = data.get('semester')
         exam_type = data.get('exam_type')
-        print(f"Data received: {data}")
-
-
 
         # Fetch the exam committee
         exam_committee = ExamCommittee.objects.filter(id=exam_committee_id).first()
@@ -110,29 +106,64 @@ def generate_exam_resulation(request):
         courses=Course.objects.filter(syllabus__program=exam_committee.program)
 
         # Define context (dynamic data)
-
+        bangla_days = ['†mvgevi', 'g½jevi', 'eyaevi', 'e„n¯úwZevi', 'ïµevi', 'kwbevi', 'iweevi']
+        get_resulation_date_time_str = data.get('resulation_date_time')
+        resulation_date_time=datetime.fromisoformat(get_resulation_date_time_str) if get_resulation_date_time_str else None
+        resulation_date= resulation_date_time.date().strftime('%d/%m/%Y') if resulation_date_time else 'N/A'
+        # 12-hour format without AM/PM
+        resulation_time= resulation_date_time.strftime('%I:%M') if resulation_date_time else 'N/A'
+        resulation_day_name_bn_asci= bangla_days[resulation_date_time.weekday()] if resulation_date_time else 'N/A'
+        time_in_words ={
+            'bn_uni': '',
+            'bn_ansi': '',
+            'en': ''
+        }
+        if resulation_date_time.time() < datetime.strptime('12:00 PM', '%I:%M %p').time():
+            time_in_words = {
+                'bn_uni': 'সকাল',
+                'bn_ansi': 'mKvj',
+                'en': 'Morning'
+            }
+        elif resulation_date_time.time() >= datetime.strptime('12:00 PM', '%I:%M %p').time() and resulation_date_time.time() < datetime.strptime('05:00 PM', '%I:%M %p').time():
+            time_in_words = {
+                'bn_uni': 'দুপুর',
+                'bn_ansi': '`ycyi',
+                'en': 'Afternoon'
+            }
+        # bangla_days_ansi = bangla_days[data.get('resulation_date_time').date().weekday()] if data.get('resulation_date_time') else 'N/A'
+        # print(f"Bangla day in ANSI: {data.get('resulation_date_time').date().strftime('%A') if data.get('resulation_date_time') else 'N/A'}")
+        # bangla_day_ansi = bangla_days[data.get('resulation_date_time').date().strftime('%d').weekday()]
+        print(courses.count())
         context = {
+            'exam_committee_title': exam_committee.title_ansi,
+            'exam_name_ansi': exam_committee.get_exam(exam_type).exam_name_ansi if exam_committee.get_exam(exam_type) else "No Exam",
+            'admission_session': exam_committee.get_addmission_session(),
             'committee_members': committee_members,
             'committee_chairman': exam_commitee_chairman.teacher.full_name_ansi if exam_commitee_chairman else 'N/A',
             'academic_year': academic_year,
             'semester': semester,
             'exam_type': exam_type,
             'courses': courses,
+            'total_courses': courses.count(),
             'question_submission_deadline': data.get('question_submission_deadline', 'N/A'),
             'question_modaration_date': data.get('question_moderation_date', 'N/A'),
             'viva_date_1': data.get('viva_date_1', 'N/A'),
             'viva_date_2': data.get('viva_date_2', 'N/A'),
             'duty_roster_made_by': data.get('duty_roster_made_by', 'N/A'),
+            'resulation_date': resulation_date,
+            'resulation_time': resulation_time,
+            'resulation_day_name_bn_asci': resulation_day_name_bn_asci,
+            'time_in_words': time_in_words,  # example in docxtpl template use {{ time_in_words.bn_ansi }} for bangla ansi
         }
 
+        template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')
         # Load and render the document
-        if exam_type == 'regular':
-            if semester == '1st':
-                template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')
-            else:
-                template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')
-        else:
-            template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')  # Use a different template for other exam types if needed
+        # if exam_type == 'regular':
+
+        #     template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')
+
+        # else:
+        #     template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')  # Use a different template for other exam types if needed
         doc = DocxTemplate(template_path)
         doc.render(context)
 

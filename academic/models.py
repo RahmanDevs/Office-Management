@@ -110,8 +110,8 @@ class Course(models.Model):
             return examiner.examiner.full_name_ansi
         return "No First Examiner assigned"
     
-    def get_exam_date(self):
-        print("Getting exam date...")
+    def get_exam_date(self, exam_type="regular"):
+
 
         """
         Example usage in docxtpl template:
@@ -127,7 +127,9 @@ class Course(models.Model):
             "morning": "09:30-01:30",
             "afternoon": "01:30-05:30",
             }
-        exam = Exam.objects.filter(course=self).first()
+        exam = ExamRutine.objects.filter(course=self, exam_type=exam_type).first()
+        if not exam:
+            return "bvB", "bvB", "bvB", "bvB"
         exam_date=exam.date
         bangla_days = ['†mvgevi', 'g½jevi', 'eyaevi', 'e„n¯úwZevi', 'ïµevi', 'kwbevi', 'iweevi']
         bangla_day_ansi = bangla_days[exam_date.weekday()]
@@ -137,10 +139,6 @@ class Course(models.Model):
             exam_time="No Exam Time Assigned"
         if not exam_date:
             exam_date="No Exam Date Assigned"
-        print(exam_room_ansi)
-        print(exam_time)
-        print(bangla_day_ansi)
-        print(exam_date)
         return str(exam_date.strftime("%d/%m/%Y")), f"{bangla_day_ansi}", str(exam_time), str(exam_room_ansi)
         
 
@@ -193,20 +191,25 @@ EXAM_ROOM_CHOICES={
         },
     }
 
-class Exam(models.Model):
+class ExamRutine(models.Model):
     EXAM_TIME_CHOICES = [
         ("morning", "Morning"),
         ("afternoon", "Afternoon"),
     ]
-    
-    # course_code = models.CharField(max_length=50)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exam', blank=True, null=True)
+    EXAM_TYPE_CHOICES = [
+        ("regular", "Regular"),
+        ("retake", "Retake"),
+        ("improvement", "Improvement"),
+        ("special", "Special"),
+    ]
+
+    course=models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exam_rutine', blank=True, null=True)
+    exam_type = models.CharField(max_length=20, choices=EXAM_TYPE_CHOICES)
     date = models.DateField(blank=True, null=True)
     time = models.CharField(max_length=20, choices=EXAM_TIME_CHOICES)
     chief_inspector = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='chief_inspector', blank=True, null=True)
     inspectors = models.ManyToManyField(Teacher, related_name='inspectors', blank=True)
     room_number = models.CharField(choices=ExamRoom.choices, max_length=50, blank=True, null=True, default="Room 103")
-
     def __str__(self):
         return f"{self.course.course_code if self.course else "No Course Code"}:{self.course} - {self.date} - {self.time}"
     def get_exam_room(self, lang='en'):
@@ -215,9 +218,14 @@ class Exam(models.Model):
         {{ exam.get_exam_room('ar') }}
         """
         return EXAM_ROOM_CHOICES.get(self.room_number, {}).get(lang, self.room_number)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['course', 'exam_type'],
+                name='unique_exam_type_per_course'
+            )
+        ]
 
-    def get_course_code(self):
-        return self.course.course_code if self.course else "No Course Code"
 
 class ExamCommittee(models.Model):
     title_en = models.CharField(max_length=255, blank=True, null=True)
@@ -227,8 +235,46 @@ class ExamCommittee(models.Model):
 
 
     def __str__(self):
-        return f"{self.title_en} - {self.program}"
+        return f"{self.title_en}"
+    def get_addmission_session(self):
+        """
+        Example usage in docxtpl template:
+        {{ exam_committee.get_addmission_session }}
+        """
 
+        if self.program and self.program.admission_session:
+            return self.program.admission_session
+        return "20  -20  "
+    
+    def get_exam(self, exam_type="regular"):
+        """
+        Example usage in docxtpl template:
+        {{ exam_committee.get_exam("regular") }}
+        {{ exam_committee.get_exam("retake") }}
+        """
+        exam = Exam.objects.filter(exam_committee=self, exam_type=exam_type).first()
+        if exam:
+            return exam
+        return None
+
+class Exam(models.Model):
+    EXAM_TYPE_CHOICES = [
+        ("regular", "Regular"),
+        ("retake", "Retake"),
+        ("improvement", "Improvement"),
+        ("special", "Special"),
+    ]
+    exam_type = models.CharField(max_length=20, choices=EXAM_TYPE_CHOICES, default="regular")
+    exam_name_en = models.CharField(max_length=255, blank=True, null=True)
+    exam_name_uni = models.CharField(max_length=255, blank=True, null=True)
+    exam_name_ansi = models.CharField(max_length=255, blank=True, null=True)
+    exam_committee = models.ForeignKey(ExamCommittee, on_delete=models.CASCADE, related_name='exams', blank=True, null=True)
+    # program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='exams', blank=True, null=True)
+    def __str__(self):
+        return f"{self.exam_name_en} - {self.exam_type} - {self.exam_committee.program.title_en if self.exam_committee and self.exam_committee.program else "No Program"}"
+
+    class Meta:
+        unique_together = ('exam_type', 'exam_committee', 'exam_name_en' )
 
 ROLE_LANG = {
     'chairman': {
