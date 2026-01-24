@@ -9,8 +9,8 @@ import uuid
 from datetime import date, datetime
 
 from teachers.models import Teacher
-from .models import ExamCommittee, Program,ExamCommitteeMember, AcademicYear
-from .models import Course
+from .models import ExamCommittee, Program,ExamCommitteeMember, AcademicYear, Course, SEMESTER_CHOICES
+
 # Create your views here.
 
 def get_exam_committee(request):
@@ -85,6 +85,26 @@ def generate_bill_details(request):
         response['Content-Disposition'] = f'attachment; filename={file_name}'
         return response
 
+
+# Get Bangla day, working function with date_obj or string input also
+def get_bangla_day(date_input, lang='bn_ansi'):
+    bangla_days_ansi = ['†mvgevi', 'g½jevi', 'eyaevi', 'e„n¯úwZevi', 'ïµevi', 'kwbevi', 'iweevi']
+    bangla_days_uni = ['সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার', 'রবিবার']
+    if isinstance(date_input, str):
+        date_obj = datetime.fromisoformat(date_input)
+    elif isinstance(date_input, date):
+        date_obj = date_input
+    else:
+        raise ValueError("Invalid date input")
+    if lang == 'bn_ansi':
+        return bangla_days_ansi[date_obj.weekday()]
+    elif lang == 'bn_uni':
+        return bangla_days_uni[date_obj.weekday()]
+    else:
+        raise ValueError("Invalid language code")
+
+
+
 @csrf_exempt
 def generate_exam_resulation(request):
     if request.method == 'POST':
@@ -92,7 +112,9 @@ def generate_exam_resulation(request):
         data = json.loads(request.body)
         academic_year = data.get('academic_year')
         exam_committee_id = data.get('exam_committee')
-        semester = data.get('semester')
+        get_semester = data.get('semester') # e.g., '1st Semester', '2nd Semester', etc.
+        semester_dict = {str(choice[1]): choice[0] for choice in Course._meta.get_field('semester').choices} # {'1': '1st Semester', '2': '2nd Semester', ...}
+        semester_ansi= '1g' if int(semester_dict.get(get_semester, 1)) % 2 == 1 else '2q'
         exam_type = data.get('exam_type')
 
         # Fetch the exam committee
@@ -103,58 +125,56 @@ def generate_exam_resulation(request):
         # Prepare context for the document
         committee_members = ExamCommitteeMember.objects.filter(committee=exam_committee)
         exam_commitee_chairman = committee_members.filter(role='chairman').first()
-        courses=Course.objects.filter(syllabus__program=exam_committee.program)
+        external_member = committee_members.filter(role='external_member').first()
+        external_member_dict_ansi={
+            'name': external_member.teacher.full_name_ansi if external_member else 'N/A',
+            'designation': external_member.teacher.get_designation_display(lang='bn_ansi') if external_member else 'N/A',
+            'department': external_member.teacher.department.name_ansi if external_member else 'N/A',
+            'university': external_member.teacher.university.name_ansi if external_member else 'N/A',
+            'address': external_member.teacher.university.location_ansi if external_member else 'N/A',
 
-        # Define context (dynamic data)
-        bangla_days = ['†mvgevi', 'g½jevi', 'eyaevi', 'e„n¯úwZevi', 'ïµevi', 'kwbevi', 'iweevi']
-        get_resulation_date_time_str = data.get('resulation_date_time')
-        resulation_date_time=datetime.fromisoformat(get_resulation_date_time_str) if get_resulation_date_time_str else None
-        resulation_date= resulation_date_time.date().strftime('%d/%m/%Y') if resulation_date_time else 'N/A'
-        # 12-hour format without AM/PM
-        resulation_time= resulation_date_time.strftime('%I:%M') if resulation_date_time else 'N/A'
-        resulation_day_name_bn_asci= bangla_days[resulation_date_time.weekday()] if resulation_date_time else 'N/A'
-        time_in_words ={
-            'bn_uni': '',
-            'bn_ansi': '',
-            'en': ''
-        }
-        if resulation_date_time.time() < datetime.strptime('12:00 PM', '%I:%M %p').time():
-            time_in_words = {
-                'bn_uni': 'সকাল',
-                'bn_ansi': 'mKvj',
-                'en': 'Morning'
-            }
-        elif resulation_date_time.time() >= datetime.strptime('12:00 PM', '%I:%M %p').time() and resulation_date_time.time() < datetime.strptime('05:00 PM', '%I:%M %p').time():
-            time_in_words = {
-                'bn_uni': 'দুপুর',
-                'bn_ansi': '`ycyi',
-                'en': 'Afternoon'
-            }
-        # bangla_days_ansi = bangla_days[data.get('resulation_date_time').date().weekday()] if data.get('resulation_date_time') else 'N/A'
-        # print(f"Bangla day in ANSI: {data.get('resulation_date_time').date().strftime('%A') if data.get('resulation_date_time') else 'N/A'}")
-        # bangla_day_ansi = bangla_days[data.get('resulation_date_time').date().strftime('%d').weekday()]
-        print(courses.count())
+         }
+
+        courses=Course.objects.filter(syllabus__program=exam_committee.program)
+        print(data.get('last_date_of_fillup'))
+        print(data.get('start_date_of_fillup'))
+
+    
+
         context = {
             'exam_committee_title': exam_committee.title_ansi,
             'exam_name_ansi': exam_committee.get_exam(exam_type).exam_name_ansi if exam_committee.get_exam(exam_type) else "No Exam",
             'admission_session': exam_committee.get_addmission_session(),
+            'semester': semester_ansi,
             'committee_members': committee_members,
             'committee_chairman': exam_commitee_chairman.teacher.full_name_ansi if exam_commitee_chairman else 'N/A',
+            'external_member': external_member_dict_ansi if external_member else 'N/A',
             'academic_year': academic_year,
-            'semester': semester,
             'exam_type': exam_type,
             'courses': courses,
             'total_courses': courses.count(),
-            'question_submission_deadline': data.get('question_submission_deadline', 'N/A'),
-            'question_modaration_date': data.get('question_moderation_date', 'N/A'),
-            'viva_date_1': data.get('viva_date_1', 'N/A'),
-            'viva_date_2': data.get('viva_date_2', 'N/A'),
+            'question_submission_deadline': datetime.fromisoformat(data.get('question_submission_deadline')).strftime('%d/%m/%Y') if data.get('question_submission_deadline') else 'N/A',
+            'moderation_date': datetime.fromisoformat(data.get('question_moderation_date_time')).strftime('%d/%m/%Y') if data.get('question_moderation_date_time') else 'N/A',
+            'moderation_time': datetime.fromisoformat(data.get('question_moderation_date_time')).strftime('%I:%M') if data.get('question_moderation_date_time') else 'N/A',
+            'moderation_day' : get_bangla_day(data.get('question_moderation_date_time'), lang='bn_ansi') if data.get('question_moderation_date_time') else 'N/A',
+            'viva_date_1': '10/11/2025',
+            'viva_date_2': '11/11/2025',
             'duty_roster_made_by': data.get('duty_roster_made_by', 'N/A'),
-            'resulation_date': resulation_date,
-            'resulation_time': resulation_time,
-            'resulation_day_name_bn_asci': resulation_day_name_bn_asci,
-            'time_in_words': time_in_words,  # example in docxtpl template use {{ time_in_words.bn_ansi }} for bangla ansi
+            'resulation_date': datetime.fromisoformat(data.get('resulation_date_time')).date().strftime('%d/%m/%Y') if data.get('resulation_date_time') else 'N/A',
+            'resulation_time': datetime.fromisoformat(data.get('resulation_date_time')).strftime('%I:%M') if data.get('resulation_date_time') else 'N/A',
+            'resulation_day': get_bangla_day(data.get('resulation_date_time'), lang='bn_ansi') if data.get('resulation_date_time') else 'N/A',
+            'start_date_of_fillup': datetime.fromisoformat(data.get('start_date_of_fillup')).strftime('%d/%m/%Y') if data.get('start_date_of_fillup') else 'N/A',
+            'last_date_of_fillup': datetime.fromisoformat(data.get('last_date_of_fillup')).strftime('%d/%m/%Y') if data.get('last_date_of_fillup') else 'N/A',
+            'viva_dates': [datetime.fromisoformat(date_str).strftime('%d/%m/%Y') for date_str in data.get('viva_dates', [])] or [],
         }
+
+        '''
+        Example of viva dates in docxtpl code
+        {% for date in viva_dates %}
+        {% if viva_dates|length > 1 %} and {% endif %}
+        - {{ date }}
+        {% endfor %}
+        '''
 
         template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')
         # Load and render the document
@@ -182,7 +202,7 @@ def generate_exam_resulation(request):
 
     web_context = {
         'academic_years': AcademicYear.objects.all(),
-        'semesters': [choice[0] for choice in Course._meta.get_field('semester').choices],
+        'semesters': [choice[1] for choice in Course._meta.get_field('semester').choices],
         'teachers': Teacher.objects.all(),
     }
     return render(request, 'exams/Exam Resulation-1.html', web_context)

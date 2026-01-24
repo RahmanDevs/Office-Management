@@ -1,19 +1,6 @@
 from django.core.management.base import BaseCommand
 from teachers.models import University
-"""
-University Fields are
 
-name_en
-name_ansi
-name_uni
-short_name_en
-short_name_ansi
-short_name_uni
-location_en
-location_ansi
-location_uni
-website
-"""
 
 # Example Data
 

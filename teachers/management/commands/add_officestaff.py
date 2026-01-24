@@ -5,7 +5,7 @@ from datetime import datetime
 from django.core.management.base import BaseCommand
 
 
-from teachers.models import Officers
+from teachers.models import OfficeStaff
 
 
 # TODO: Populate with officer records. Each dict should mirror Officers fields.
@@ -17,7 +17,7 @@ OFFICER_DATA = [
 	    'full_name_ansi': '†gvt Rvwn`yj Bmjvg',
 	    'full_name_ar': None,
 	    'short_name_en': 'ZI',
-	    'designation': 'assistant_registrar',
+	    'designation': 1,
 	    'email': 'zahidul.islam@example.com',
 	    'phone_number': '0123456789',
 	    'office_phone_number': None,
@@ -35,7 +35,7 @@ OFFICER_DATA = [
 	    'full_name_ansi': 'gvKmy` †nv‡mb ZvjyK`vi',
 	    'full_name_ar': None,
 	    'short_name_en': 'MHT',
-	    'designation': 'assistant_registrar',
+	    'designation': 1,
 	    'email': 'maksud.talukdar@example.com',
 	    'phone_number': '0123456789',
 	    'office_phone_number': None,
@@ -53,7 +53,7 @@ OFFICER_DATA = [
 	    'full_name_ansi': '†gvt gwbiæ¾vgvb',
 	    'full_name_ar': None,
 	    'short_name_en': 'MM',
-	    'designation': 'assistant_registrar',
+	    'designation': 2,
 	    'email': 'moniruzzaman@example.com',
 	    'phone_number': '0123456789',
 	    'office_phone_number': None,
@@ -71,7 +71,7 @@ OFFICER_DATA = [
 	    'full_name_ansi': '†gvt kvLvIqvr †nv‡mb',
 	    'full_name_ar': None,
 	    'short_name_en': 'SH',
-	    'designation': 'assistant_registrar',
+	    'designation': 2,
 	    'email': 'shakhawat@example.com',
 	    'phone_number': '0123456789',
 	    'office_phone_number': None,
@@ -89,7 +89,7 @@ OFFICER_DATA = [
 	    'full_name_ansi': '†gvt Avãyi iwng',
 	    'full_name_ar': None,
 	    'short_name_en': 'AR',
-	    'designation': 'assistant_registrar',
+	    'designation': 3,
 	    'email': 'abdur.rahim@example.com',
 	    'phone_number': '0123456789',
 	    'office_phone_number': None,
@@ -107,7 +107,7 @@ OFFICER_DATA = [
 	    'full_name_ansi': '†gvQvt bvRgv LvZzb',
 	    'full_name_ar': None,
 	    'short_name_en': 'NK',
-	    'designation': 'assistant_registrar',
+	    'designation': 4,
 	    'email': 'nazma.khatun@example.com',
 	    'phone_number': '0123456789',
 	    'office_phone_number': None,
@@ -126,7 +126,7 @@ OFFICER_DATA = [
 	    'full_name_ansi': '†gvt wejøvj †nv‡mb',
 	    'full_name_ar': None,
 	    'short_name_en': 'BH',
-	    'designation': 'assistant_registrar',
+	    'designation': 4,
 	    'email': 'billal.hossain@example.com',
 	    'phone_number': '0123456789',
 	    'office_phone_number': None,
@@ -164,7 +164,7 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		if options.get('reset'):
-			Officers.objects.all().delete()
+			OfficeStaff.objects.all().delete()
 			self.stdout.write(self.style.WARNING('Deleted existing officers'))
 			
 
@@ -178,7 +178,7 @@ class Command(BaseCommand):
 				self.stdout.write(self.style.WARNING('Skipped entry without email (required for lookup).'))
 				continue
 
-			officer, created = Officers.objects.update_or_create(
+			office_staff, created = OfficeStaff.objects.update_or_create(
 				email=lookup_email,
 				defaults={
 					'full_name_en': data.get('full_name_en'),
@@ -201,9 +201,9 @@ class Command(BaseCommand):
 
 			if created:
 				self.stdout.write(
-					self.style.SUCCESS(f"Created officer: {officer.full_name_en or officer.full_name_uni}")
+					self.style.SUCCESS(f"Created officer: {office_staff.full_name_en or office_staff.full_name_uni}")
 				)
 			else:
 				self.stdout.write(
-					self.style.SUCCESS(f"Updated officer: {officer.full_name_en or officer.full_name_uni}")
+					self.style.SUCCESS(f"Updated officer: {office_staff.full_name_en or office_staff.full_name_uni}")
 				)

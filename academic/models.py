@@ -1,5 +1,5 @@
 from django.db import models
-from teachers.models import Teacher, ExternalTeacher  # or Teacher if you named it that
+from teachers.models import Teacher, OfficeStaff  # or Teacher if you named it that
 
 
 class DepartmentDetails(models.Model):
@@ -26,14 +26,14 @@ SESSION_CHOICES = [
     ("2024-2025", "2024-2025"),
 ]
 SEMESTER_CHOICES = [
-    ("1st Semester", "1st Semester"),
-    ("2nd Semester", "2nd Semester"),
-    ("3rd Semester", "3rd Semester"),
-    ("4th Semester", "4th Semester"),
-    ("5th Semester", "5th Semester"),
-    ("6th Semester", "6th Semester"),
-    ("7th Semester", "7th Semester"),
-    ("8th Semester", "8th Semester"),
+    (1, "1st Semester"),
+    (2, "2nd Semester"),
+    (3, "3rd Semester"),
+    (4, "4th Semester"),
+    (5, "5th Semester"),
+    (6, "6th Semester"),
+    (7, "7th Semester"),
+    (8, "8th Semester"),
     ]
 
 LEVEL_CHOICES = [
@@ -209,6 +209,7 @@ class ExamRutine(models.Model):
     time = models.CharField(max_length=20, choices=EXAM_TIME_CHOICES)
     chief_inspector = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='chief_inspector', blank=True, null=True)
     inspectors = models.ManyToManyField(Teacher, related_name='inspectors', blank=True)
+    assistants=models.ManyToManyField(OfficeStaff, related_name='assistants', blank=True)
     room_number = models.CharField(choices=ExamRoom.choices, max_length=50, blank=True, null=True, default="Room 103")
     def __str__(self):
         return f"{self.course.course_code if self.course else "No Course Code"}:{self.course} - {self.date} - {self.time}"

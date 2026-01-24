@@ -203,7 +203,7 @@
             {{ faculty.full_name_en }}
             <span class="tooltip" aria-live="polite">Copied!</span>
           </div>
-          <div class="faculty-title">{{ faculty.designation }}</div>
+          <div class="faculty-title">{{ faculty.get_designation_display }}</div>
         </div>
         {% endfor %}
       </div>

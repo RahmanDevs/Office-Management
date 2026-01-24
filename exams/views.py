@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from docxtpl import DocxTemplate
-from teachers.models import Teacher, Officers
+from teachers.models import Teacher, OfficeStaff
 from academic.models import ExamCommittee,AcademicYear, Course
 import uuid
 from datetime import date, datetime

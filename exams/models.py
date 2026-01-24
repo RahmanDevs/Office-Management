@@ -1,6 +1,6 @@
 from django.db import models
 from academic.models import Course
-from teachers.models import Teacher, Officers
+from teachers.models import Teacher, OfficeStaff
 
 # Create your models here.
 
