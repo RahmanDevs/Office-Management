@@ -227,7 +227,7 @@ def generate_exam_routine_docx(request):
         # For GET requests, render the page
         context = {
             'teachers': Teacher.objects.all(),
-            'officers': Officers.objects.all()
+            'officers': OfficeStaff.objects.all()
         }
         return render(request, 'exams/exam_routine.html', context=context)
 @csrf_exempt  
@@ -289,7 +289,7 @@ def generate_duty_roster_docx(request):
         # For GET requests, render the page
         context = {
             'teachers': Teacher.objects.all(),
-            'officers': Officers.objects.all(),
+            'officers': OfficeStaff.objects.all(),
             'academic_years': AcademicYear.objects.all(),
             #get semisters from .models SEMESTER_CHOICES 
             'semesters': [choice[0] for choice in Course._meta.get_field('semester').choices]

@@ -11,6 +11,8 @@ from datetime import date, datetime
 from teachers.models import Teacher
 from .models import ExamCommittee, Program,ExamCommitteeMember, AcademicYear, Course, SEMESTER_CHOICES
 
+
+
 # Create your views here.
 
 def get_exam_committee(request):
@@ -103,7 +105,15 @@ def get_bangla_day(date_input, lang='bn_ansi'):
     else:
         raise ValueError("Invalid language code")
 
-
+# Format date to string
+def format_date(date_input, format_str='%d/%m/%Y'):
+    if isinstance(date_input, str):
+        date_obj = datetime.fromisoformat(date_input)
+    elif isinstance(date_input, date):
+        date_obj = date_input
+    else:
+        raise ValueError("Invalid date input")
+    return date_obj.strftime(format_str)
 
 @csrf_exempt
 def generate_exam_resulation(request):
@@ -139,7 +149,7 @@ def generate_exam_resulation(request):
         context = {
             'exam_committee_title': exam_committee.title_ansi,
             'exam_name_ansi': exam_committee.get_exam(exam_type).exam_name_ansi if exam_committee.get_exam(exam_type) else "No Exam",
-            'start_date_of_exam': datetime.fromisoformat(data.get('start_date_of_exam')).strftime('%d/%m/%Y') if data.get('start_date_of_exam') else 'N/A',
+            'start_date_of_exam': format_date(data.get('start_date_of_exam')) if data.get('start_date_of_exam') else '    /    /        ',
             'admission_session': exam_committee.get_addmission_session(),
             'semester': semester_ansi,
             'committee_members': committee_members,
@@ -149,23 +159,24 @@ def generate_exam_resulation(request):
             'exam_type': exam_type,
             'courses': courses,
             'total_courses': courses.count(),
-            'question_submission_deadline': datetime.fromisoformat(data.get('question_submission_deadline')).strftime('%d/%m/%Y') if data.get('question_submission_deadline') else 'N/A',
-            'moderation_date': datetime.fromisoformat(data.get('question_moderation_date_time')).strftime('%d/%m/%Y') if data.get('question_moderation_date_time') else 'N/A',
-            'moderation_time': datetime.fromisoformat(data.get('question_moderation_date_time')).strftime('%I:%M') if data.get('question_moderation_date_time') else 'N/A',
+            'question_submission_deadline': format_date(data.get('question_submission_deadline')) if data.get('question_submission_deadline') else  '    /    /        ',
+            'moderation_date': format_date(data.get('question_moderation_date_time')) if data.get('question_moderation_date_time') else 'N/A',
+            'moderation_time': datetime.fromisoformat(data.get('question_moderation_date_time')).strftime('%I:%M') if data.get('question_moderation_date_time') else  '    /    /        ',
             'moderation_day' : get_bangla_day(data.get('question_moderation_date_time'), lang='bn_ansi') if data.get('question_moderation_date_time') else 'N/A',
             'viva_date_1': '10/11/2025',
             'viva_date_2': '11/11/2025',
             'duty_roster_made_by': data.get('duty_roster_made_by', 'N/A'),
-            'resulation_date': datetime.fromisoformat(data.get('resulation_date_time')).date().strftime('%d/%m/%Y') if data.get('resulation_date_time') else 'N/A',
+            'resulation_date': format_date(data.get('resulation_date_time')) if data.get('resulation_date_time') else  '    /    /        ',
             'resulation_time': datetime.fromisoformat(data.get('resulation_date_time')).strftime('%I:%M') if data.get('resulation_date_time') else 'N/A',
-            'resulation_day': get_bangla_day(data.get('resulation_date_time'), lang='bn_ansi') if data.get('resulation_date_time') else 'N/A',
-            'start_date_of_fillup': datetime.fromisoformat(data.get('start_date_of_fillup')).strftime('%d/%m/%Y') if data.get('start_date_of_fillup') else 'N/A',
-            'last_date_of_fillup': datetime.fromisoformat(data.get('last_date_of_fillup')).strftime('%d/%m/%Y') if data.get('last_date_of_fillup') else 'N/A',
-            'viva_dates': [datetime.fromisoformat(date_str).strftime('%d/%m/%Y') for date_str in data.get('viva_dates', [])] or [],
+            'resulation_day': get_bangla_day(data.get('resulation_date_time'), lang='bn_ansi') if data.get('resulation_date_time') else  '    /    /        ',
+            'start_date_of_fillup': format_date(data.get('start_date_of_fillup')) if data.get('start_date_of_fillup') else 'N/A',
+            'last_date_of_fillup': format_date(data.get('last_date_of_fillup')) if data.get('last_date_of_fillup') else 'N/A',
+            'viva_dates': [format_date(date_str) for date_str in data.get('viva_dates', [])] or [],
         }
         # Load the template
         template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')
         doc = DocxTemplate(template_path)
+        # Render the template with the context
         doc.render(context)
         # Generate a unique file name and save the output
         file_name = f"exam_resulation_{uuid.uuid4().hex}.docx"

@@ -1,112 +1,204 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Faculty Members List - Modern Copy Mode</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faculty Members List - Modern Design</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    /* Reset & basics */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     html, body {
-      margin: 0; padding: 0;
-      font-family: 'Roboto', sans-serif;
-      background: #f4f7fa;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      color: #e2e8f0;
     }
 
     .page-wrapper {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background elements */
+    .bg-decoration {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-decoration:nth-child(1) {
+      background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+      top: -200px;
+      right: -200px;
+      animation: float 20s infinite;
+    }
+
+    .bg-decoration:nth-child(2) {
+      background: linear-gradient(45deg, #06b6d4, #3b82f6);
+      bottom: -200px;
+      left: -200px;
+      animation: float 25s infinite reverse;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(50px, -50px) rotate(120deg); }
+      66% { transform: translate(-50px, 50px) rotate(240deg); }
     }
 
     header {
-      background: #2c3e50;
-      color: white;
-      padding: 30px 20px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 40px 20px;
       text-align: center;
+      position: relative;
+      z-index: 10;
     }
 
     header h1 {
-      margin: 0;
-      font-size: 28px;
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
     }
 
     .container {
       flex: 1;
-      max-width: 1200px;
+      max-width: 1400px;
       margin: auto;
-      padding: 30px 20px;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 10;
     }
 
-    /* Modern toggle container */
+    /* Control panel in single row */
+    .control-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 30px;
+      margin-bottom: 35px;
+      flex-wrap: wrap;
+    }
+
+    /* Copy mode toggle */
     .copy-mode-toggle {
       display: flex;
-      justify-content: flex-end;
-      margin-bottom: 25px;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
       font-size: 14px;
-      color: #444;
+      color: #cbd5e1;
       user-select: none;
+      font-weight: 500;
     }
 
-    /* Segmented control styling */
+    /* Copy format toggle */
+    .copy-format-toggle {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 14px;
+      color: #cbd5e1;
+      user-select: none;
+      font-weight: 500;
+    }
+
     .segmented-control {
       display: inline-flex;
-      background: #e0e0e0;
-      border-radius: 30px;
-      overflow: hidden;
-      box-shadow: inset 0 0 5px #ccc;
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 4px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.2);
       user-select: none;
     }
 
     .segmented-control button {
       all: unset;
       cursor: pointer;
-      padding: 8px 16px;
+      padding: 10px 20px;
       font-weight: 600;
-      color: #555;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      font-size: 13px;
+      color: #94a3b8;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: center;
-      flex: 1 1 auto;
-      border-radius: 0;
+      border-radius: 8px;
+      position: relative;
+      white-space: nowrap;
     }
 
     .segmented-control button.selected {
-      background: #3498db;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       color: white;
-      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
-      position: relative;
-      z-index: 1;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
     }
 
     .segmented-control button:not(.selected):hover {
-      background: #c5d9f7;
+      background: rgba(59, 130, 246, 0.1);
+      color: #bfdbfe;
     }
 
-    /* Faculty grid */
+    /* Faculty grid with modern cards */
     .faculty-grid {
       display: grid;
-      /* grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); */
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(7, 1fr);
       gap: 20px;
     }
 
     .faculty-card {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 24px 20px;
       text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      transition: transform 0.2s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: default;
       position: relative;
+      overflow: hidden;
+    }
+
+    .faculty-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+      opacity: 0;
+      transition: opacity 0.4s ease;
     }
 
     .faculty-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .faculty-card:hover::before {
+      opacity: 1;
     }
 
     .faculty-photo {
@@ -114,96 +206,199 @@
       height: 100px;
       object-fit: cover;
       border-radius: 50%;
-      margin-bottom: 15px;
-      border: 2px solid #ddd;
+      margin: 0 auto 16px;
+      border: 3px solid rgba(59, 130, 246, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s ease;
+      display: block;
+    }
+
+    .faculty-card:hover .faculty-photo {
+      border-color: rgba(59, 130, 246, 0.6);
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba(59, 130, 246, 0.3);
     }
 
     .faculty-name {
-      font-size: 18px;
-      font-weight: bold;
-      color: #2c3e50;
-      margin: 5px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin: 6px 0;
       user-select: none;
       position: relative;
       cursor: pointer;
+      transition: color 0.3s ease;
+      line-height: 1.4;
+    }
+
+    .faculty-name:hover {
+      color: #60a5fa;
     }
 
     .faculty-title {
-      font-size: 14px;
-      color: #777;
+      font-size: 13px;
+      color: #94a3b8;
       user-select: none;
+      font-weight: 500;
+      margin-top: 4px;
     }
 
-    /* Tooltip style */
+    /* Modern tooltip */
     .tooltip {
       position: absolute;
-      top: -28px;
+      top: -35px;
       left: 50%;
-      transform: translateX(-50%);
-      background-color: #3498db;
+      transform: translateX(-50%) scale(0.9);
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
       color: white;
-      padding: 4px 10px;
-      border-radius: 5px;
+      padding: 6px 14px;
+      border-radius: 8px;
       font-size: 12px;
+      font-weight: 600;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       white-space: nowrap;
       user-select: none;
-      z-index: 10;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 8px;
+      background: #2563eb;
+      transform: translateX(-50%) rotate(45deg);
     }
 
     .tooltip.show {
       opacity: 1;
-      pointer-events: auto;
+      transform: translateX(-50%) scale(1);
     }
 
     footer {
-      background-color: #2c3e50;
-      color: white;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(148, 163, 184, 0.1);
+      color: #94a3b8;
       text-align: center;
-      padding: 15px 0;
+      padding: 20px;
+      font-size: 14px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Responsive */
+    @media (max-width: 1400px) {
+      .faculty-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .faculty-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .faculty-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+
+      .control-panel {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+      }
+
+      .copy-mode-toggle,
+      .copy-format-toggle {
+        justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .faculty-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
   </style>
 </head>
 <body>
+  <div class="bg-decoration"></div>
+  <div class="bg-decoration"></div>
+  
   <div class="page-wrapper">
     <header>
-      <h1>Faculty Members – Dept. of Al-Qur'an & Islamic Studies</h1>
+      <h1>Faculty Members — Dept. of Al-Qur'an & Islamic Studies</h1>
     </header>
 
     <div class="container">
-      <div class="copy-mode-toggle" aria-label="Copy Mode Selector">
-        <span>Copy Mode:</span>
-        <div class="segmented-control" role="tablist" aria-label="Copy Mode">
-          <button role="tab" aria-selected="true" id="mode-bn" class="selected" tabindex="0">Bangla</button>
-          <button role="tab" aria-selected="false" id="mode-en" tabindex="-1">English</button>
-          <button role="tab" aria-selected="false" id="mode-ansi" tabindex="-1">Bangla ANSI</button>
+      <div class="control-panel">
+        <!-- Language Mode Selection   --> 
+        <div class="copy-mode-toggle" aria-label="Language Selector">
+          <span>Language:</span>
+          <div class="segmented-control" role="tablist" aria-label="Language Mode">
+            <button role="tab" aria-selected="true" id="mode-bn" class="selected" tabindex="0">Bangla</button>
+            <button role="tab" aria-selected="false" id="mode-en" tabindex="-1">English</button>
+            <button role="tab" aria-selected="false" id="mode-ansi" tabindex="-1">Bangla ANSI</button>
+          </div>
+        </div>
+
+        <!-- Copy Format Selection -->
+        <div class="copy-format-toggle" aria-label="Copy Format Selector">
+          <span>Copy:</span>
+          <div class="segmented-control" role="tablist" aria-label="Copy Format">
+            <button role="tab" aria-selected="true" id="format-name" class="selected" tabindex="0">Name</button>
+            <button role="tab" aria-selected="false" id="format-designation" tabindex="-1">Name, Designation</button>
+            <button role="tab" aria-selected="false" id="format-full" tabindex="-1">Name, Designation, Address</button>
+          </div>
         </div>
       </div>
 
       <div class="faculty-grid">
-
         {% for faculty in faculties %}
-        <!-- Faculty 1 -->
         <div class="faculty-card">
           {% if faculty.profile_picture %}
-          <img src="{{ faculty.profile_picture.url }}" alt="Faculty Photo" class="faculty-photo" />
+          <img src="{{ faculty.profile_picture.url }}" alt="{{ faculty.full_name_en }}" class="faculty-photo" />
+          {% else %}
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop" alt="Default Photo" class="faculty-photo" />
           {% endif %}
           
           <div
             class="faculty-name"
             data-bn-name="{{ faculty.full_name_uni }}"
             data-ansi-name="{{ faculty.full_name_ansi }}"
-            ondblclick="copyName(this)"
+            data-en-name="{{ faculty.full_name_en }}"
+
+            data-bn-designation="{{ faculty.get_designation_display_bn_uni }}"
+            data-ansi-designation="{{ faculty.get_designation_display_bn_ansi }}"
+            data-en-designation="{{ faculty.get_designation_display_en }}"
+
+            data-bn-address="{{ faculty.department.name_uni }}, {{ faculty.university.short_name_uni }}"
+            data-ansi-address="{{ faculty.department.name_ansi }}, {{ faculty.university.short_name_ansi }}"
+            data-en-address="{{ faculty.department.name_en }}, {{ faculty.university.short_name_en }}"
+
+            ondblclick="copyInfo(this)"
             tabindex="0"
             role="button"
-            aria-label="Double click to copy name"
+            aria-label="Double click to copy information"
           >
             {{ faculty.full_name_en }}
             <span class="tooltip" aria-live="polite">Copied!</span>
           </div>
-          <div class="faculty-title">{{ faculty.get_designation_display }}</div>
+          <div class="faculty-title">{{ faculty.get_designation_display_en }}</div>
         </div>
         {% endfor %}
       </div>
@@ -217,50 +412,126 @@
   <script>
     // Copy modes
     const COPY_MODES = {
-      BANGLA: 'bangla',
-      ENGLISH: 'english',
+      BANGLA: 'bn',
+      ENGLISH: 'en',
       ANSI: 'ansi',
     };
 
+    const COPY_FORMATS = {
+      NAME: 'name',
+      DESIGNATION: 'designation',
+      FULL: 'full',
+    };
+
     let currentMode = COPY_MODES.BANGLA;
+    let currentFormat = COPY_FORMATS.NAME;
 
-    const buttons = document.querySelectorAll('.segmented-control button');
+    const modeButtons = document.querySelectorAll('.copy-mode-toggle .segmented-control button');
+    const formatButtons = document.querySelectorAll('.copy-format-toggle .segmented-control button');
 
-    buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // Clear all selection
-      buttons.forEach(b => {
-        b.classList.remove('selected');
-        b.setAttribute('aria-selected', 'false');
-        b.setAttribute('tabindex', '-1');
+    // Handle language mode selection
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeButtons.forEach(b => {
+          b.classList.remove('selected');
+          b.setAttribute('aria-selected', 'false');
+          b.setAttribute('tabindex', '-1');
+        });
+
+        btn.classList.add('selected');
+        btn.setAttribute('aria-selected', 'true');
+        btn.setAttribute('tabindex', '0');
+
+        if (btn.id === 'mode-bn') currentMode = COPY_MODES.BANGLA;
+        else if (btn.id === 'mode-en') currentMode = COPY_MODES.ENGLISH;
+        else if (btn.id === 'mode-ansi') currentMode = COPY_MODES.ANSI;
+
+        try {
+          sessionStorage.setItem('copyMode', currentMode);
+        } catch (e) {
+          console.log('Storage not available');
+        }
       });
-
-      // Mark current as selected
-      btn.classList.add('selected');
-      btn.setAttribute('aria-selected', 'true');
-      btn.setAttribute('tabindex', '0');
-
-      // Update currentMode based on ID
-      if (btn.id === 'mode-bn') currentMode = COPY_MODES.BANGLA;
-      else if (btn.id === 'mode-en') currentMode = COPY_MODES.ENGLISH;
-      else if (btn.id === 'mode-ansi') currentMode = COPY_MODES.ANSI;
-
-      // ✅ Save mode in localStorage
-      localStorage.setItem('copyMode', currentMode);
     });
-  });
 
-    function copyName(element) {
-      let textToCopy;
+    // Handle copy format selection
+    formatButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        formatButtons.forEach(b => {
+          b.classList.remove('selected');
+          b.setAttribute('aria-selected', 'false');
+          b.setAttribute('tabindex', '-1');
+        });
+
+        btn.classList.add('selected');
+        btn.setAttribute('aria-selected', 'true');
+        btn.setAttribute('tabindex', '0');
+
+        if (btn.id === 'format-name') currentFormat = COPY_FORMATS.NAME;
+        else if (btn.id === 'format-designation') currentFormat = COPY_FORMATS.DESIGNATION;
+        else if (btn.id === 'format-full') currentFormat = COPY_FORMATS.FULL;
+
+        try {
+          sessionStorage.setItem('copyFormat', currentFormat);
+        } catch (e) {
+          console.log('Storage not available');
+        }
+      });
+    });
+
+
+
+
+    function copyInfo(element) {
+      const converteDesignation={
+        'অধ্যাপক': 'প্রফেসর',
+        'সহকারী অধ্যাপক': 'অ্যাসিস্ট্যান্ট প্রফেসর',
+        'Aa¨vcK': 'cÖ‡dmi',
+        'mnKvix Aa¨vcK': 'A¨vwm÷¨›U cÖ‡dmi'
+      };
+      let textToCopy = '';
+      
+      // Get name based on language mode
+      let name = '';
       if (currentMode === COPY_MODES.BANGLA) {
-        textToCopy = element.getAttribute('data-bn-name');
+        name = element.getAttribute('data-bn-name');
       } else if (currentMode === COPY_MODES.ENGLISH) {
-        textToCopy = element.textContent.replace('Copied!', '').trim();
+        name = element.getAttribute('data-en-name');
       } else if (currentMode === COPY_MODES.ANSI) {
-        textToCopy = element.getAttribute('data-ansi-name');
+        name = element.getAttribute('data-ansi-name');
       }
 
-      if (!textToCopy) {
+
+      // Get designation based on language mode
+      let designation = '';
+      if (currentMode === COPY_MODES.BANGLA) {
+        designation = element.getAttribute('data-bn-designation');
+      } else if (currentMode === COPY_MODES.ENGLISH) {
+        designation = element.getAttribute('data-en-designation');
+      } else if (currentMode === COPY_MODES.ANSI) {
+        designation = element.getAttribute('data-ansi-designation');
+      }
+
+      // Get address based on language mode
+      let address = '';
+      if (currentMode === COPY_MODES.BANGLA) {
+        address = element.getAttribute('data-bn-address');
+      } else if (currentMode === COPY_MODES.ENGLISH) {
+        address = element.getAttribute('data-en-address');
+      } else if (currentMode === COPY_MODES.ANSI) {
+        address = element.getAttribute('data-ansi-address');
+      }
+
+      // Build text based on format 
+      if (currentFormat === COPY_FORMATS.NAME) {
+        textToCopy = name;
+      } else if (currentFormat === COPY_FORMATS.DESIGNATION) {
+        textToCopy = `${converteDesignation?.[designation] || designation} ${name}`;
+      } else if (currentFormat === COPY_FORMATS.FULL) {
+        textToCopy = `${name}\n${designation}\n${address}`;
+      }
+
+      if (!textToCopy || textToCopy.trim() === '') {
         alert('No text to copy');
         return;
       }
@@ -274,17 +545,30 @@
       });
     }
 
-    // Restore previous copy mode from localStorage
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedMode = localStorage.getItem('copyMode');
+    // Restore previous settings from storage
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        // Restore language mode
+        const savedMode = sessionStorage.getItem('copyMode');
+        if (savedMode && Object.values(COPY_MODES).includes(savedMode)) {
+          currentMode = savedMode;
+          const buttonId = `mode-${savedMode}`;
+          const savedBtn = document.getElementById(buttonId);
+          if (savedBtn) savedBtn.click();
+        }
 
-    if (savedMode && Object.values(COPY_MODES).includes(savedMode)) {
-      currentMode = savedMode;
-      const buttonId = savedMode === 'bangla' ? 'mode-bn' : `mode-${savedMode}`;
-      const savedBtn = document.getElementById(buttonId);
-      if (savedBtn) savedBtn.click();
-    }
-  });
+        // Restore copy format
+        const savedFormat = sessionStorage.getItem('copyFormat');
+        if (savedFormat && Object.values(COPY_FORMATS).includes(savedFormat)) {
+          currentFormat = savedFormat;
+          const buttonId = `format-${savedFormat}`;
+          const savedBtn = document.getElementById(buttonId);
+          if (savedBtn) savedBtn.click();
+        }
+      } catch (e) {
+        console.log('Storage not available, using defaults');
+      }
+    });
   </script>
 </body>
 </html>

@@ -113,6 +113,12 @@ class Teacher(models.Model):
             elif lang == 'ar':
                 return DESIGNATION_LANG.get(Designation(self.designation).label, {}).get('title_ar', 'N/A')
         return "N/A"
+    def get_designation_display_en(self):
+        return self.get_designation_display(lang='en')
+    def get_designation_display_bn_ansi(self):
+        return self.get_designation_display(lang='bn_ansi')
+    def get_designation_display_bn_uni(self):
+        return self.get_designation_display(lang='bn_uni')
     def clean(self):
         if self.university and self.department:
             if self.university.name_en == 'Islamic University' and self.department.name_en == 'Department of Al-Quran & Islamic Studies':
