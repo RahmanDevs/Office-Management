@@ -334,6 +334,10 @@
               <input type="date" name="last_date_of_fillup" required />
             </div>
             <div class="form-group">
+              <label>Start Date of Exam</label>
+              <input type="date" name="start_date_of_exam" required />
+            </div>
+            <div class="form-group">
               <label>Question Submission Deadline</label>
               <input type="date" name="question_submission_deadline" required />
             </div>
@@ -343,7 +347,7 @@
             </div>
             
             
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label>Duty Roster Made By</label>
               <select name="duty_roster_made_by" required>
                 <option value="">--Select Teacher--</option>
@@ -351,7 +355,8 @@
                 <option value="{{ teacher.full_name_ansi }}">{{ teacher.full_name_en }}</option>
                 {% endfor %}
               </select>
-            </div>
+            </div> -->
+
           </div>
         </div>
 
@@ -444,9 +449,7 @@
       // SUBMIT AS JSON
       function submitForm() {
         const form = document.getElementById("exam-resulation-form");
-        const vivaDates = Array.from(document.querySelectorAll('input[name="viva_date[]"]'))
-          .map(el => el.value)
-          .filter(v => v !== "");
+        const vivaDates = Array.from(document.querySelectorAll('input[name="viva_date[]"]')).map(el => el.value).filter(v => v !== "");
         
         const data = {
           academic_year: form.academic_year.value,
@@ -456,8 +459,8 @@
           question_submission_deadline: form.question_submission_deadline.value,
           question_moderation_date_time: form.question_moderation_date_time.value,
           viva_dates: vivaDates,
-          duty_roster_made_by: form.duty_roster_made_by.value,
           resulation_date_time: form.resulation_date_time.value,
+          start_date_of_exam: form.start_date_of_exam.value,
           start_date_of_fillup: form.start_date_of_fillup.value,
           last_date_of_fillup: form.last_date_of_fillup.value,
         };

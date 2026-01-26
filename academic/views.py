@@ -116,7 +116,6 @@ def generate_exam_resulation(request):
         semester_dict = {str(choice[1]): choice[0] for choice in Course._meta.get_field('semester').choices} # {'1': '1st Semester', '2': '2nd Semester', ...}
         semester_ansi= '1g' if int(semester_dict.get(get_semester, 1)) % 2 == 1 else '2q'
         exam_type = data.get('exam_type')
-
         # Fetch the exam committee
         exam_committee = ExamCommittee.objects.filter(id=exam_committee_id).first()
         if not exam_committee:
@@ -134,16 +133,13 @@ def generate_exam_resulation(request):
             'address': external_member.teacher.university.location_ansi if external_member else 'N/A',
 
          }
-
+        
         courses=Course.objects.filter(syllabus__program=exam_committee.program)
-        print(data.get('last_date_of_fillup'))
-        print(data.get('start_date_of_fillup'))
-
-    
-
+        # construct context
         context = {
             'exam_committee_title': exam_committee.title_ansi,
             'exam_name_ansi': exam_committee.get_exam(exam_type).exam_name_ansi if exam_committee.get_exam(exam_type) else "No Exam",
+            'start_date_of_exam': datetime.fromisoformat(data.get('start_date_of_exam')).strftime('%d/%m/%Y') if data.get('start_date_of_exam') else 'N/A',
             'admission_session': exam_committee.get_addmission_session(),
             'semester': semester_ansi,
             'committee_members': committee_members,
@@ -167,39 +163,19 @@ def generate_exam_resulation(request):
             'last_date_of_fillup': datetime.fromisoformat(data.get('last_date_of_fillup')).strftime('%d/%m/%Y') if data.get('last_date_of_fillup') else 'N/A',
             'viva_dates': [datetime.fromisoformat(date_str).strftime('%d/%m/%Y') for date_str in data.get('viva_dates', [])] or [],
         }
-
-        '''
-        Example of viva dates in docxtpl code
-        {% for date in viva_dates %}
-        {% if viva_dates|length > 1 %} and {% endif %}
-        - {{ date }}
-        {% endfor %}
-        '''
-
+        # Load the template
         template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')
-        # Load and render the document
-        # if exam_type == 'regular':
-
-        #     template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')
-
-        # else:
-        #     template_path = os.path.join(settings.BASE_DIR, 'templates/doc_file', 'Exam Resulation-1.docx')  # Use a different template for other exam types if needed
         doc = DocxTemplate(template_path)
         doc.render(context)
-
         # Generate a unique file name and save the output
         file_name = f"exam_resulation_{uuid.uuid4().hex}.docx"
         output_path = os.path.join(settings.MEDIA_ROOT, file_name)
         doc.save(output_path)
-
         # Serve the generated file as a download
         with open(output_path, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
             response['Content-Disposition'] = f'attachment; filename={file_name}'
             return response
-    
-
-
     web_context = {
         'academic_years': AcademicYear.objects.all(),
         'semesters': [choice[1] for choice in Course._meta.get_field('semester').choices],

@@ -109,6 +109,38 @@ class Course(models.Model):
         if examiner:
             return examiner.examiner.full_name_ansi
         return "No First Examiner assigned"
+    def get_chief_inspector(self, exam_type="regular"):
+        """
+        Example usage in docxtpl template:
+        {{ course.get_chief_inspector("regular") }}
+        {{ course.get_chief_inspector("retake") }}
+        """
+        exam = ExamRutine.objects.filter(course=self, exam_type=exam_type).first()
+        if exam and exam.chief_inspector:
+            return exam.chief_inspector.full_name_ansi
+        return "No Chief Inspector assigned"
+    def get_inspectors(self, exam_type="regular"):
+        """
+        Example usage in docxtpl template:
+        {{ course.get_inspectors("regular") }}
+        {{ course.get_inspectors("retake") }}
+        """
+        exam = ExamRutine.objects.filter(course=self, exam_type=exam_type).first()
+        if exam:
+            inspectors = exam.inspectors.all()
+            return [inspector.full_name_ansi for inspector in inspectors]
+        return "No Inspectors assigned"
+    def get_assistants(self, exam_type="regular"):
+        """
+        Example usage in docxtpl template:
+        {{ course.get_assistants("regular") }}
+        {{ course.get_assistants("retake") }}
+        """
+        exam = ExamRutine.objects.filter(course=self, exam_type=exam_type).first()
+        if exam:
+            assistants = exam.assistants.all()
+            return [assistant.full_name_ansi for assistant in assistants]
+        return "No Assistants assigned"
     
     def get_exam_date(self, exam_type="regular"):
 

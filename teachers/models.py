@@ -167,3 +167,5 @@ class OfficeStaff(models.Model):
         ordering = ['joining_date','designation']
         verbose_name = 'Office Staff'
         verbose_name_plural = 'Office Staffs'
+
+
